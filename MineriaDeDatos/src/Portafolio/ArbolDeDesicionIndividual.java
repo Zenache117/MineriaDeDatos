@@ -1,6 +1,6 @@
 package Portafolio;
 /*
-Este codigo es una implementaciÃ³n de un algoritmo para generar Ã¡rboles de decisiÃ³n a partir de un archivo CSV.
+Este codigo es una implementacion de un algoritmo para generar Ã¡rboles de decisiÃ³n a partir de un archivo CSV.
 A continuaciÃ³n, se presenta una descripciÃ³n de las partes principales del cÃ³digo:
 
 El paquete Decision contiene una clase llamada Arbol, que tiene un mÃ©todo main que se encarga de leer un archivo CSV, 
