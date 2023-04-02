@@ -54,18 +54,10 @@ asÃ­ como un mÃ©todo para agregar un nodo hijo a la lista de nodos hijos.
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import javax.swing.JFileChooser;
-
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.io.FileUtils;
 
 public class ArbolDeDesicionIndividual {

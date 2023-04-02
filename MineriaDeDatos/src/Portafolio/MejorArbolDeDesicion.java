@@ -1,8 +1,4 @@
 package Portafolio;
-
-import java.awt.FileDialog;
-import java.awt.Frame;
-
 /*
 Este codigo es una implementación de un algoritmo para generar arboles de decisión a partir de un archivo CSV.
 A continuaciÃ³n, se presenta una descripciÃ³n de las partes principales del cÃ³digo:
@@ -54,14 +50,14 @@ del nodo actual en el Ã¡rbol. La clase tiene un constructor que toma el valor 
 toma solo el valor de datos. TambiÃ©n tiene mÃ©todos para obtener el valor de datos, el nodo padre y la lista de nodos hijos, 
 asÃ­ como un mÃ©todo para agregar un nodo hijo a la lista de nodos hijos.
  * */
-
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import javax.swing.JFileChooser;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.io.FileUtils;
