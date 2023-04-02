@@ -1,10 +1,6 @@
 package Portafolio;
-
-import java.awt.FileDialog;
-import java.awt.Frame;
-
 /*
-Este codigo es una implementación de un algoritmo para generar arboles de decisión a partir de un archivo CSV.
+Este cÃ³digo es una implementaciÃ³n de un algoritmo para generar Ã¡rboles de decisiÃ³n a partir de un archivo CSV.
 A continuaciÃ³n, se presenta una descripciÃ³n de las partes principales del cÃ³digo:
 
 El paquete Decision contiene una clase llamada Arbol, que tiene un mÃ©todo main que se encarga de leer un archivo CSV, 
@@ -55,18 +51,24 @@ toma solo el valor de datos. TambiÃ©n tiene mÃ©todos para obtener el valor d
 asÃ­ como un mÃ©todo para agregar un nodo hijo a la lista de nodos hijos.
  * */
 
+import java.awt.FileDialog;
+import java.awt.Frame;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.JFileChooser;
+
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.iterators.PermutationIterator;
 import org.apache.commons.io.FileUtils;
 
-public class Arbol {
+public class ArbolDeDesicionIndividual {
 
 	public static void main(String[] args) throws IOException {
 
@@ -85,113 +87,14 @@ public class Arbol {
 			// Esta lista definirá las instacias a como vienen en el registro del csv
 			List<String> lines = FileUtils.readLines(file, "UTF-8");
 
-			// Asigna la primera linea del registro a los encabezados
-			List<String> headers = Arrays.asList(lines.get(0).split(","));
-
 			// Removemos los encabezados para que no formen parte de los valores del
 			// registro
 			lines.remove(0);
 
-			// Generar todas las permutaciones de las columnas
-			PermutationIterator<String> permIter = new PermutationIterator<String>(headers);
-			List<List<String>> perms = new ArrayList<List<String>>();
-			permIter.forEachRemaining(perm -> perms.add(perm));
+			float ent = calculateEntrophy(lines);
 
-			// Esta variable definirá el valor de entropia minimo encontrado en los arboles
-			float minEnt = -1;
-			// Esta lista representará al arbol de minima entropia encontrado
-			List<String> arbolMinEnt = null;
-
-			// Para cada permutación
-			for (List<String> perm : perms) {
-				// Crear raÃ­z del Ã¡rbol con el nombre de la permutaciÃ³n
-				Node<String> root = new Node<String>(perm.toString());
-
-				// Para cada fila del CSV
-				for (String line : lines) {
-					String[] values = line.split(",");
-					// Recorrer la permutación de columnas y crear nodos con los valores posibles
-					Node<String> currentNode = root;
-					for (String col : perm) {
-						String value = values[headers.indexOf(col)];
-						List<Node<String>> children = IteratorUtils.toList(currentNode.getChildren().iterator());
-						if (children.stream().noneMatch(node -> node.getData().equals(value))) {
-							currentNode = new Node<String>(value, currentNode);
-						} else {
-							currentNode = children.stream().filter(node -> node.getData().equals(value)).findFirst()
-									.get();
-						}
-					}
-				}
-
-				// Imprimir árbol de la permutación actual en un archivo de texto
-				// File outputFile = new
-				// File("C:\\Users\\mauri\\OneDrive\\Documentos\\Arboles\\permutacion_" + perm +
-				// ".txt");
-				// FileWriter writer = new FileWriter(outputFile);
-				// writer.write("Permutación: " + perm + "\n");
-				// printTreeToFile(root, "", true, writer);
-
-				// Formamos una lista de las instancias en el orden de la permutación
-				List<String> sortedLines = new ArrayList<>();
-				for (String line : lines) {// Se recorre la lista del registro original
-					List<String> values = new ArrayList<>(Arrays.asList(line.split(",")));
-					List<String> sortedValues = new ArrayList<>();
-					for (String col : perm) {// Se recorre las columnas segun la permutación
-						sortedValues.add(values.get(headers.indexOf(col)));
-					}
-					String sortedLine = String.join(",", sortedValues);
-					sortedLines.add(sortedLine);
-				}
-
-				float ent = calculateEntrophy(sortedLines);
-
-				// si la entropia inicial es -1 entonces la primera entopia calculada es igual a
-				// la menor entropia obtenida
-				if (minEnt == -1) {
-					minEnt = ent;
-					arbolMinEnt = perm;
-				} else {// Aqui entra cuando ya se calculo la primera entopia minima
-					// Solo se actualiza la entopia cuando se obtiene una menor (Solo se toma en
-					// cuenta un arbol de minima entropia, si hay otro con una entropia igual a la
-					// menor, no se toma en cuenta)
-					if (ent < minEnt) {
-						minEnt = ent;
-						arbolMinEnt = perm;
-					}
-				}
-				// writer.close();
-			}
 			// Imprimir en consola el mejor resultado
-			System.out.println("Permutación: " + arbolMinEnt + "Minima entropia: " + minEnt);
-
-			// Imprimir el mejor arbol y su entropia
-			Node<String> root = new Node<String>(arbolMinEnt.toString());
-			for (String line : lines) {
-				String[] values = line.split(",");
-				Node<String> currentNode = root;
-				for (String col : arbolMinEnt) {
-					String value = values[headers.indexOf(col)];
-					List<Node<String>> children = IteratorUtils.toList(currentNode.getChildren().iterator());
-					if (children.stream().noneMatch(node -> node.getData().equals(value))) {
-						currentNode = new Node<String>(value, currentNode);
-					} else {
-						currentNode = children.stream().filter(node -> node.getData().equals(value)).findFirst().get();
-					}
-				}
-			}
-
-			// Crear un nuevo objeto FileDialog
-			CarpetaDestino carpetaDestino = new CarpetaDestino();
-
-			String rutaCarpetaDestino = carpetaDestino.selectCarpet();
-
-			// Imprimir el arbol de desición de mejor entropia
-			File outputFile = new File(rutaCarpetaDestino + "permutacion_" + arbolMinEnt + ".txt");
-			FileWriter writer = new FileWriter(outputFile);
-			writer.write("Permutación: " + arbolMinEnt + " Entropia del arbol: " + minEnt + "\n");
-			printTreeToFile(root, "", true, writer);
-			writer.close();
+			System.out.println("Entropia: " + ent);
 		}
 		fileChooser.dispose();
 	}
@@ -200,14 +103,14 @@ public class Arbol {
 	// float
 	private static float calculateEntrophy(List<String> registro) {
 
-		// Se llama al metodo para generar las tablas en función de la cantidad de
+		// Se llama al metodo para generar las tablas en funci�n de la cantidad de
 		// columnas del registro
 		List<List<String>> tablas = splitRegistro(registro);
 
-		// Esta variable esta encargada de aculumar la entropía de las tablas
+		// Esta variable esta encargada de aculumar la entrop�a de las tablas
 		float totalEntropy = 0;
 
-		// Se recorren todas las tablas y se calculan las entropías
+		// Se recorren todas las tablas y se calculan las entrop�as
 		for (List<String> tabla : tablas) {
 
 			// Se generan listas de las variantes que ya se han revisado
@@ -261,9 +164,9 @@ public class Arbol {
 						break Conteo;
 					} else {
 						if (!revisado2.contains(tipoPert)) {
-							// Si la tabla tiene mas de una columna, las instancias deberían dividirse entre
+							// Si la tabla tiene mas de una columna, las instancias deber�an dividirse entre
 							// la cantidad de insatncias a las que pertenecen.
-							// Obtener el tipo de instancia (último valor de la fila con respecto al valor
+							// Obtener el tipo de instancia (�ltimo valor de la fila con respecto al valor
 							// que se revisa)
 							int ultimaComa = fila2.lastIndexOf(',');
 							String instancia = fila2.substring(0, ultimaComa);// omite el ultimo caracter
@@ -289,19 +192,19 @@ public class Arbol {
 					float p;
 					p = (float) instances / (float) numInstances;
 					entropy -= p * Math.log10(p); // La entropia de cada tipo de instancia se calcula aqui
-					totalEntropy += entropy; // Aqui se acumula la entropía de todas las subtablas de la permutación
+					totalEntropy += entropy; // Aqui se acumula la entrop�a de todas las subtablas de la permutaci�n
 
 				}
 
 			}
 		}
 
-		// Devolver la entropía total
+		// Devolver la entrop�a total
 		return totalEntropy;
 	}
 
 	// Este metodo ayuda a separar el registo enviado a calculateEntrohpy en las
-	// tablas para calcular la entropía
+	// tablas para calcular la entrop�a
 	private static List<List<String>> splitRegistro(List<String> registro) {
 		List<List<String>> tablas = new ArrayList<>();
 		int numCols = registro.get(0).split(",").length;
@@ -320,52 +223,39 @@ public class Arbol {
 		return tablas;
 	}
 
-	// Aqui se imprime el arbol que le sea enviado
-	private static void printTreeToFile(Node<String> node, String prefix, boolean isTail, FileWriter writer)
-			throws IOException {
-		writer.write(prefix + (isTail ? "└── " : "├── ") + node.getData() + "\n");
-		List<Node<String>> children = IteratorUtils.toList(node.getChildren().iterator());
-		for (int i = 0; i < children.size() - 1; i++) {
-			printTreeToFile(children.get(i), prefix + (isTail ? "    " : "│   "), false, writer);
+	class Node<T> {
+
+		private T data;
+		private Node<T> parent;
+		private List<Node<T>> children;
+
+		public Node(T data, Node<T> parent) {
+			this.data = data;
+			this.parent = parent;
+			this.children = new ArrayList<Node<T>>();
+			if (parent != null) {
+				parent.addChild(this);
+			}
 		}
-		if (children.size() > 0) {
-			printTreeToFile(children.get(children.size() - 1), prefix + (isTail ? "    " : "│   "), true, writer);
+
+		public Node(T data) {
+			this(data, null);
 		}
-	}
-}
 
-class Node<T> {
-
-	private T data;
-	private Node<T> parent;
-	private List<Node<T>> children;
-
-	public Node(T data, Node<T> parent) {
-		this.data = data;
-		this.parent = parent;
-		this.children = new ArrayList<Node<T>>();
-		if (parent != null) {
-			parent.addChild(this);
+		public T getData() {
+			return data;
 		}
-	}
 
-	public Node(T data) {
-		this(data, null);
-	}
+		public Node<T> getParent() {
+			return parent;
+		}
 
-	public T getData() {
-		return data;
-	}
+		public List<Node<T>> getChildren() {
+			return children;
+		}
 
-	public Node<T> getParent() {
-		return parent;
-	}
-
-	public List<Node<T>> getChildren() {
-		return children;
-	}
-
-	public void addChild(Node<T> child) {
-		this.children.add(child);
+		public void addChild(Node<T> child) {
+			this.children.add(child);
+		}
 	}
 }
