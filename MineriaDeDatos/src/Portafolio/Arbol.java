@@ -182,10 +182,9 @@ public class Arbol {
 			}
 
 			// Crear un nuevo objeto FileDialog
-			FileDialog carpetaDestino = new FileDialog((Frame) null, "Seleccionar carpeta destino", FileDialog.LOAD);
-			carpetaDestino.setMode(FileDialog.SAVE);
-			carpetaDestino.setVisible(true);
-			String rutaCarpetaDestino = carpetaDestino.getDirectory();
+			CarpetaDestino carpetaDestino = new CarpetaDestino();
+
+			String rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
 			// Imprimir el arbol de desición de mejor entropia
 			File outputFile = new File(rutaCarpetaDestino + "permutacion_" + arbolMinEnt + ".txt");
@@ -193,7 +192,6 @@ public class Arbol {
 			writer.write("Permutación: " + arbolMinEnt + " Entropia del arbol: " + minEnt + "\n");
 			printTreeToFile(root, "", true, writer);
 			writer.close();
-			carpetaDestino.dispose();
 		}
 		fileChooser.dispose();
 	}
