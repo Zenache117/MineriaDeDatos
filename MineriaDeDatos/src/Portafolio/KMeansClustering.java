@@ -21,7 +21,63 @@ public class KMeansClustering {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        KMeansClustering kmeans = new KMeansClustering();
+        kmeans.Normalizar(registro);
+        System.out.println("");
+	}
+	
+	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
+		// Calcula el número de columnas en el registro CSV
+		int numColumnas = registro.get(0).size();
 
+		// Crea arreglos para almacenar los valores mínimos, máximos, m y b para cada columna
+		double[] minValues = new double[numColumnas];
+		double[] maxValues = new double[numColumnas];
+		double[] mValues = new double[numColumnas];
+		double[] bValues = new double[numColumnas];
+
+		// Inicializa los valores mínimos y máximos con el primer valor de cada columna
+		for (int i = 0; i < numColumnas; i++) {
+		    minValues[i] = Double.parseDouble(registro.get(0).get(i));
+		    maxValues[i] = Double.parseDouble(registro.get(0).get(i));
+		}
+
+		// Encuentra los valores mínimos y máximos para cada columna
+		for (CSVRecord fila : registro) {
+		    for (int i = 0; i < numColumnas; i++) {
+		        double valor = Double.parseDouble(fila.get(i));
+		        if (valor < minValues[i]) {
+		            minValues[i] = valor;
+		        }
+		        if (valor > maxValues[i]) {
+		            maxValues[i] = valor;
+		        }
+		    }
+		}
+
+		// Calcula los valores de m y b para cada columna
+		for (int i = 0; i < numColumnas; i++) {
+		    mValues[i] = 1 / (maxValues[i] - minValues[i]);
+		    bValues[i] = minValues[i] * mValues[i];
+		}
+
+		// Crea una lista para almacenar el registro CSV normalizado
+		List<List<Double>> registroNormalizado = new ArrayList<>();
+
+		// Normaliza los datos en cada columna y almacena los valores normalizados en la lista
+		for (CSVRecord fila : registro) {
+		    List<Double> filaNormalizada = new ArrayList<>();
+		    for (int i = 0; i < numColumnas; i++) {
+		        double valor = Double.parseDouble(fila.get(i));
+		        double valorNormalizado = valor * mValues[i] + bValues[i];
+		        filaNormalizada.add(valorNormalizado);
+		    }
+		    registroNormalizado.add(filaNormalizada);
+		}
+		
+		return registroNormalizado;
+		
 	}
 
 }
