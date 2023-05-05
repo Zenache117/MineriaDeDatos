@@ -24,7 +24,7 @@ public class KMeansClustering {
         KMeansClustering kmeans = new KMeansClustering();
         List<List<Double>> registroNormalizado = new ArrayList<>();
         registroNormalizado = kmeans.Normalizar(registro);
-        System.out.println("");
+        int cantCentros = 2;
 	}
 	
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
