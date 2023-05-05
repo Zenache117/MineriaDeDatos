@@ -3,7 +3,6 @@ package Portafolio;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -23,7 +22,8 @@ public class KMeansClustering {
         }
         
         KMeansClustering kmeans = new KMeansClustering();
-        kmeans.Normalizar(registro);
+        List<List<Double>> registroNormalizado = new ArrayList<>();
+        registroNormalizado = kmeans.Normalizar(registro);
         System.out.println("");
 	}
 	
@@ -39,18 +39,18 @@ public class KMeansClustering {
 
 		// Inicializa los valores mínimos y máximos con el primer valor de cada columna
 		for (int i = 0; i < numColumnas; i++) {
-		    minValues[i] = Double.parseDouble(registro.get(0).get(i));
-		    maxValues[i] = Double.parseDouble(registro.get(0).get(i));
+		    minValues[i] = -1;
+		    maxValues[i] = -1;
 		}
 
 		// Encuentra los valores mínimos y máximos para cada columna
 		for (CSVRecord fila : registro) {
 		    for (int i = 0; i < numColumnas; i++) {
-		        double valor = Double.parseDouble(fila.get(i));
-		        if (valor < minValues[i]) {
+		        double valor = Double.parseDouble(fila.get(i).replace(",", ""));
+		        if (valor < minValues[i] || minValues[i] == -1) {
 		            minValues[i] = valor;
 		        }
-		        if (valor > maxValues[i]) {
+		        if (valor > maxValues[i] || maxValues[i] == -1) {
 		            maxValues[i] = valor;
 		        }
 		    }
@@ -59,7 +59,7 @@ public class KMeansClustering {
 		// Calcula los valores de m y b para cada columna
 		for (int i = 0; i < numColumnas; i++) {
 		    mValues[i] = 1 / (maxValues[i] - minValues[i]);
-		    bValues[i] = minValues[i] * mValues[i];
+		    bValues[i] = (-1)*minValues[i] * mValues[i];
 		}
 
 		// Crea una lista para almacenar el registro CSV normalizado
@@ -69,7 +69,7 @@ public class KMeansClustering {
 		for (CSVRecord fila : registro) {
 		    List<Double> filaNormalizada = new ArrayList<>();
 		    for (int i = 0; i < numColumnas; i++) {
-		        double valor = Double.parseDouble(fila.get(i));
+		        double valor = Double.parseDouble(fila.get(i).replace(",", ""));
 		        double valorNormalizado = valor * mValues[i] + bValues[i];
 		        filaNormalizada.add(valorNormalizado);
 		    }
