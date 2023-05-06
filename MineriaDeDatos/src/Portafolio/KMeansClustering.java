@@ -98,13 +98,13 @@ public class KMeansClustering {
 		List<List<Double>> centros = new ArrayList<>();
 		List<Double> primerosValores = new ArrayList<>();
 		for (Double valFila : registroNormalizado.get(0)) {
-			primerosValores.add(valFila);
+		    primerosValores.add(valFila);
 		}
 
-		// Se añade 2 veces para que una lista sea los valores minimos y al otra los
-		// valores maximos y estos a su vez sean los primeros centros
+		List<Double> segundosValores = new ArrayList<>(primerosValores);
+
 		centros.add(primerosValores);
-		centros.add(primerosValores);
+		centros.add(segundosValores);
 
 		for (List<Double> fila : registroNormalizado) {
 			int i = 0;
