@@ -14,7 +14,7 @@ public class KMeansClustering {
 	List<Double> sigmaDisMin = new ArrayList<>();
 
 	// La lista de distancias tiene que ser una lista de listas porque la lista que
-	// se contiene represnta las distancias de todas las instancias hacia un centro
+	// se contiene representa las distancias de todas las instancias hacia un centro
 	// y la lissta general contiene la de todos los centros
 	List<List<Double>> distancias = new ArrayList<>();
 
@@ -29,15 +29,25 @@ public class KMeansClustering {
 			e.printStackTrace();
 		}
 
+		// Generamos esta instancia para desplazarnos a travez de los metodos de la
+		// clase
 		KMeansClustering kmeans = new KMeansClustering();
+
 		List<List<Double>> registroNormalizado = new ArrayList<>();
 		registroNormalizado = kmeans.Normalizar(registro);
+
+		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
 		boolean mejoraCentros = true;
 		boolean mejoraLocal = true;
+
+		// Esta lista contendrá los valores de los centros como tal en función de las
+		// variables del registro
 		List<List<Double>> centros = new ArrayList<>();
 		centros = kmeans.primerosCentros(registroNormalizado);
 		double distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado);
+		List<List<Double>> sumProdCentros = new ArrayList<>();
+		sumProdCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
 		while (mejoraCentros == true) {
 			while (mejoraLocal == true) {
 
@@ -189,8 +199,91 @@ public class KMeansClustering {
 		// Aqui obtenemos la suma de los valores minimos
 		double suma = 0;
 		for (double valor : sigmaDisMin) {
-		    suma += valor;
+			suma += valor;
 		}
 		return suma;
+	}
+
+	public List<List<Double>> nuevosCentros(int cantCentros, List<List<Double>> registroNormalizado,
+			List<List<Double>> centros) {
+		// A esta lista se le sumarán los valores de las variables de las instancias a
+		// sus respectivos centros
+		List<List<Double>> sumProdCentros = new ArrayList<>();
+
+		// Esta lista contará la cantidad de insatncias que pertenecen a un centro
+		List<Integer> cantInstancias = new ArrayList<>();
+
+		// Se inicializa la lista para luego trabajar cpn posiciones especificas de ella
+		for (int i = 0; i < cantCentros; i++) {
+			cantInstancias.add(0);
+			List<Double> filasumProd = new ArrayList<>();
+			for (int j = 0; j < registroNormalizado.get(0).size(); j++) {
+				filasumProd.add(0.0);
+			}
+			sumProdCentros.add(filasumProd);
+		}
+
+		// Se recorren las filas de las listas de las distancias minimas, las distancias
+		// generales y los valores normalizados del registro
+		// Indices:
+		// La i indica el nivel de la instancia, La j indica el centro, La y indica la
+		// variable
+		for (int i = 0; i < sigmaDisMin.size(); i++) {
+			// Se recorre las distancias de cada centro en la fila i
+			for (int j = 0; j < cantCentros; j++) {
+
+				// Debido a que el comparador == no tiene mucha presición al comparar valores
+				// double se tomara en consideración la diferencia de una resta entre los
+				// valores y si la diferencia es 0 se consideraran iguales
+				double a = distancias.get(j).get(i);
+				double b = sigmaDisMin.get(i);
+				double epsilon = 0.000000000000001;
+
+				// Se utiliza el la función de Math.abs para obtener el valor absoluto y tener
+				// la diferencia
+				/*
+				 * El método Math.abs() es un método estático de la clase Math en Java que
+				 * devuelve el valor absoluto de un número. El valor absoluto de un número es su
+				 * distancia desde cero en la recta numérica, sin tener en cuenta su signo. Por
+				 * ejemplo, el valor absoluto de -5 es 5 y el valor absoluto de 5 es 5.
+				 * 
+				 * El método Math.abs() acepta un argumento de tipo int, long, float o double y
+				 * devuelve un valor del mismo tipo. Internamente, el método Math.abs() calcula
+				 * el valor absoluto de un número utilizando operaciones aritméticas básicas.
+				 * Por ejemplo, para calcular el valor absoluto de un número x, se puede
+				 * utilizar la siguiente fórmula: x >= 0 ? x : -x.
+				 */
+
+				if (Math.abs(a - b) < epsilon) {
+
+					int aumento = cantInstancias.get(j);
+					cantInstancias.set(j, aumento + 1);
+
+					// Se itera dentro de las variables de la insrtancia i
+					for (int y = 0; y < registroNormalizado.get(0).size(); y++) {
+						double valor = sumProdCentros.get(j).get(y);
+						sumProdCentros.get(j).set(y, valor + registroNormalizado.get(i).get(y));
+					}
+				}
+			}
+		}
+
+		// Una vez se tiene la suma de los valores de las instancias que pertenecen a
+		// cada centro, se les suma el valor del centro al que pertenecen
+		// Una vez se tiene cada suma se divide entre la cantidad de instancias
+		// pertenecientes a ese centro mas 1
+		for (int i = 0; i < cantCentros; i++) {
+			for (int j = 0; j < registroNormalizado.get(0).size(); j++) {
+				double valor = sumProdCentros.get(i).get(j);
+				int instanciasPlus = cantInstancias.get(i) + 1;
+
+				// se usa el cast (double) para asegurarse que el valor resultante sea tipo
+				// double debido a que la división se hace sobre un entero
+				sumProdCentros.get(i).set(j, (double) (valor + centros.get(i).get(j)) / instanciasPlus);
+			}
+		}
+
+		return sumProdCentros;
+
 	}
 }
