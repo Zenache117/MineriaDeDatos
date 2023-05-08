@@ -46,14 +46,42 @@ public class KMeansClustering {
 		List<List<Double>> centros = new ArrayList<>();
 		centros = kmeans.primerosCentros(registroNormalizado);
 		double distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado);
-		List<List<Double>> sumProdCentros = new ArrayList<>();
-		sumProdCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
-		while (mejoraCentros == true) {
-			while (mejoraLocal == true) {
-
-			}
-			cantCentros++;
+		
+		List<List<Double>> nuevosCentros = new ArrayList<>();
+		nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
+		
+		// Se limpian de registros estass dos listas para que se pueda operar con ellas nuevamente
+		kmeans.distancias.clear();
+		kmeans.sigmaDisMin.clear();
+		double nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado);
+		
+		// Si en la primera actualización de centros se obtuvo un mejor resultado se actualizan las variables
+		if (nuevaDistancia < distanciaTotal) {
+			distanciaTotal = nuevaDistancia;
+			centros = nuevosCentros;
+			kmeans.distancias.clear();
+			kmeans.sigmaDisMin.clear();
 		}
+		// De caso contrario se mantienen y se procede cambiar el valor de la variable mejora local
+		else {
+			mejoraLocal = false;
+		}
+		
+		// while (mejoraCentros == true) {
+		while (mejoraLocal == true) {
+			nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
+			nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado);
+			if (nuevaDistancia < distanciaTotal) {
+				distanciaTotal = nuevaDistancia;
+				centros = nuevosCentros;
+				kmeans.distancias.clear();
+				kmeans.sigmaDisMin.clear();
+			}else {
+				mejoraLocal = false;
+			}
+		}
+		cantCentros++;
+		// }
 	}
 
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
@@ -285,5 +313,11 @@ public class KMeansClustering {
 
 		return sumProdCentros;
 
+	}
+
+	public List<List<Double>> centrosIniciales(int cantCentros, List<List<Double>> registroNormalizado) {
+		List<List<Double>> centros = new ArrayList<>();
+		
+		return centros;
 	}
 }
