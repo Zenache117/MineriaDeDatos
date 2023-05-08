@@ -40,48 +40,60 @@ public class KMeansClustering {
 		int cantCentros = 2;
 		boolean mejoraCentros = true;
 		boolean mejoraLocal = true;
+		double distanciaTotal = 0.0;
+		double nuevaDistancia = 0.0;
+		double mejorValor = -1;
+		int mejorCantCentros = 2;
 
 		// Esta lista contendrá los valores de los centros como tal en función de las
 		// variables del registro
 		List<List<Double>> centros = new ArrayList<>();
-		centros = kmeans.primerosCentros(registroNormalizado);
-		double distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado);
-		
 		List<List<Double>> nuevosCentros = new ArrayList<>();
-		nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
-		
-		// Se limpian de registros estass dos listas para que se pueda operar con ellas nuevamente
-		kmeans.distancias.clear();
-		kmeans.sigmaDisMin.clear();
-		double nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado);
-		
-		// Si en la primera actualización de centros se obtuvo un mejor resultado se actualizan las variables
-		if (nuevaDistancia < distanciaTotal) {
-			distanciaTotal = nuevaDistancia;
-			centros = nuevosCentros;
-			kmeans.distancias.clear();
-			kmeans.sigmaDisMin.clear();
-		}
-		// De caso contrario se mantienen y se procede cambiar el valor de la variable mejora local
-		else {
-			mejoraLocal = false;
-		}
-		
-		// while (mejoraCentros == true) {
-		while (mejoraLocal == true) {
-			nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
-			nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado);
-			if (nuevaDistancia < distanciaTotal) {
-				distanciaTotal = nuevaDistancia;
-				centros = nuevosCentros;
-				kmeans.distancias.clear();
-				kmeans.sigmaDisMin.clear();
-			}else {
-				mejoraLocal = false;
+
+		while (mejoraCentros == true) {
+			int i = 0;
+			while (mejoraLocal == true) {
+
+				// En caso que sea la primera vez que se calculan los centros entra aqui para
+				// tener valores con loss cauless comparar desspuess
+				if (i == 0) {
+					centros = kmeans.centrosIniciales(cantCentros, registroNormalizado);
+					distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado, kmeans);
+				} else {
+
+					// Se calculan loss nuevos centros y su distancia
+					nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
+					nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado, kmeans);
+
+					// Si hay una mejora se actualizan los valores en caso contrario se cambia la
+					// variable de mejora para salir del ciclo y registrar la mejor distancia con la
+					// cantidad de centros actual.
+					if (nuevaDistancia < distanciaTotal) {
+						distanciaTotal = nuevaDistancia;
+						centros = nuevosCentros;
+					} else {
+						mejoraLocal = false;
+					}
+				}
+
+				// Esto ayuda a decirle al ciclo que no es la primera iteración con ese calor de
+				// centros
+				i++;
 			}
+			
+			if (mejorValor == -1 || distanciaTotal < mejorValor) {
+				mejorValor = distanciaTotal;
+				mejorCantCentros = cantCentros;
+				mejoraLocal = true;
+			} else {
+				System.out.println("La cantidad de centros encontrada fue de: " + mejorCantCentros
+						+ " con una distancia de: " + mejorValor);
+				mejoraCentros = false;
+			}
+
+			cantCentros++;
+
 		}
-		cantCentros++;
-		// }
 	}
 
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
@@ -139,37 +151,13 @@ public class KMeansClustering {
 
 	}
 
-	public List<List<Double>> primerosCentros(List<List<Double>> registroNormalizado) {
+	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
+			KMeansClustering kmeans) {
 
-		// Se asignan los primeros valores como centros y luego se comparan
-		List<List<Double>> centros = new ArrayList<>();
-		List<Double> primerosValores = new ArrayList<>();
-		for (Double valFila : registroNormalizado.get(0)) {
-			primerosValores.add(valFila);
-		}
+		// Se limpian las listas para asegurarse de poder trabajar con ellas
+		kmeans.distancias.clear();
+		kmeans.sigmaDisMin.clear();
 
-		List<Double> segundosValores = new ArrayList<>(primerosValores);
-
-		centros.add(primerosValores);
-		centros.add(segundosValores);
-
-		for (List<Double> fila : registroNormalizado) {
-			int i = 0;
-			for (Double valor : fila) {
-				if (valor < centros.get(0).get(i)) {
-					centros.get(0).set(i, valor);
-				}
-				if (valor > centros.get(1).get(i)) {
-					centros.get(1).set(i, valor);
-				}
-				i++;
-			}
-
-		}
-		return centros;
-	}
-
-	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado) {
 		// Se recorren los centros
 		for (List<Double> filaCentro : centros) {
 
@@ -193,6 +181,7 @@ public class KMeansClustering {
 				double distancia = Math.pow(sigmaCuadrados, (1.0 / registroNormalizado.get(0).size()));
 				distCent.add(distancia);
 			}
+
 			// Se agregan las distancias el centro recorrido a la lista de distancias
 			// generales
 			distancias.add(distCent);
@@ -229,6 +218,10 @@ public class KMeansClustering {
 		for (double valor : sigmaDisMin) {
 			suma += valor;
 		}
+
+		System.out.println("Distancia minima acumulada: " + suma + "\n");
+		System.out.println("-----------------------------------------");
+
 		return suma;
 	}
 
@@ -265,7 +258,7 @@ public class KMeansClustering {
 				// valores y si la diferencia es 0 se consideraran iguales
 				double a = distancias.get(j).get(i);
 				double b = sigmaDisMin.get(i);
-				double epsilon = 0.000000000000001;
+				double epsilon = 0.00000000000001;
 
 				// Se utiliza el la función de Math.abs para obtener el valor absoluto y tener
 				// la diferencia
@@ -287,7 +280,7 @@ public class KMeansClustering {
 					int aumento = cantInstancias.get(j);
 					cantInstancias.set(j, aumento + 1);
 
-					// Se itera dentro de las variables de la insrtancia i
+					// Se itera dentro de las variables de la instancia i
 					for (int y = 0; y < registroNormalizado.get(0).size(); y++) {
 						double valor = sumProdCentros.get(j).get(y);
 						sumProdCentros.get(j).set(y, valor + registroNormalizado.get(i).get(y));
@@ -311,13 +304,69 @@ public class KMeansClustering {
 			}
 		}
 
+		System.out.println("Centros: " + cantCentros);
+		for (List<Double> fila : sumProdCentros) {
+			for (Double valor : fila) {
+				System.out.print(" /" + valor + "/ ");
+			}
+			System.out.println("\n");
+		}
+
 		return sumProdCentros;
 
 	}
 
-	public List<List<Double>> centrosIniciales(int cantCentros, List<List<Double>> registroNormalizado) {
+	public List<List<Double>> centrosIniciales(int cantCentros, List<List<Double>> registrosNormalizados) {
+		// Crear una lista vacía para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
-		
+
+		// Obtener el número de variables en el registro (El numero de variables es
+		// igual en cualquier pisición de la lista registroNormalizado por eso no
+		// importa de donde tome el size())
+		int numVariables = registrosNormalizados.get(0).size();
+
+		// Iterar sobre cada variable del registro
+		for (int i = 0; i < numVariables; i++) {
+			// Inicializar las variables min y max para encontrar el valor mínimo y máximo
+			// para esta variable
+			double min = Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+
+			// Iterar sobre cada registro en registrosNormalizados
+			for (List<Double> registro : registrosNormalizados) {
+				// Obtener el valor de la variable actual para este registro
+				double valor = registro.get(i);
+
+				// Actualizar las variables min y max si es necesario
+				if (valor < min) {
+					min = valor;
+				}
+				if (valor > max) {
+					max = valor;
+				}
+			}
+
+			// Calcular el intervalo entre los centros
+			double intervalo = (max - min) / (cantCentros - 1);
+
+			// Agregar cada centro a la lista centros
+			for (int j = 0; j < cantCentros; j++) {
+				if (centros.size() <= j) {
+					centros.add(new ArrayList<>());
+				}
+				centros.get(j).add(min + intervalo * j);
+			}
+		}
+
+		System.out.println("Centros:" + cantCentros);
+		for (List<Double> fila : centros) {
+			for (Double valor : fila) {
+				System.out.print(" /" + valor + "/ ");
+			}
+			System.out.println("\n");
+		}
+
 		return centros;
 	}
+
 }
