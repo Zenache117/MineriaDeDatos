@@ -11,4 +11,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/ApacheCommonsIO"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/Weka"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="lib" path="lib/javacsv.jar"/>
 </classpath>
