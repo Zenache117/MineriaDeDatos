@@ -23,7 +23,7 @@ public class reglas {
 			String header = "";
 			int totalInstances = 0;
 
-			//Imprime la tabla original
+			// Imprime la tabla original
 			while ((line = br.readLine()) != null) {
 				// Dividir la línea en columnas utilizando la coma como separador
 				String[] columns = line.split(csvSplitBy);
@@ -58,7 +58,7 @@ public class reglas {
 						}
 					}
 				}
-				
+
 				// Construir una cadena con las columnas separadas
 				StringBuilder row = new StringBuilder();
 				for (int i = 0; i < columns.length; i++) {
@@ -74,7 +74,6 @@ public class reglas {
 				// Incrementar el contador de instancias
 				totalInstances++;
 			}
-
 
 			// Número de Instancias
 			System.out.println("Número de instancias: " + (totalInstances));
@@ -92,13 +91,12 @@ public class reglas {
 			}
 			System.out.println("\n");
 
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println("--------------------------------");
+		System.out.println("--------------------------------------------------");
 		System.out.println("Convertidos a Categóricos: ");
-		//Imprimir los valores convertidos a categóricos
+		// Imprimir los valores convertidos a categóricos
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 			// Arreglos para almacenar los valores de cada columna
 			double[] maxValues = null;
@@ -106,7 +104,7 @@ public class reglas {
 			boolean isFirstRow = true;
 			String header = "";
 
-			//Imprime la tabla original
+			// Imprime la tabla original
 			while ((line = br.readLine()) != null) {
 				// Dividir la línea en columnas utilizando la coma como separador
 				String[] columns = line.split(csvSplitBy);
@@ -126,9 +124,9 @@ public class reglas {
 				// Asignar el valor "B", "M" o "A" a la columna Wind
 				if (Double.parseDouble(columns[1]) <= 5) {
 					columns[1] = "B";
-				} else if (Double.parseDouble(columns[1]) <= 12){
+				} else if (Double.parseDouble(columns[1]) <= 12) {
 					columns[1] = "M";
-				}else{
+				} else {
 					columns[1] = "A";
 				}
 				// Asignar el valor "F" o "C" a la columna Temp
@@ -148,10 +146,12 @@ public class reglas {
 
 				// Imprimir la tabla completa con valores categóricos
 				System.out.println(row.toString());
+
+				// Imprimir la primera ronda de condiciones (buscar como permutaciones)
+				
+
 			}
 
-
-			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
