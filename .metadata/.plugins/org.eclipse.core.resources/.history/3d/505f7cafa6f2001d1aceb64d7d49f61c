@@ -1,0 +1,17 @@
+package Portafolio;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class reglas {
+
+	public static void main(String[] args) throws IOException {
+		String filePath = "C:\\Users\\mauri\\OneDrive\\Documentos\\Archivos Excel\\SanFranciscoHomicides1849-2003-10-2010 (1).csv";
+		FileReader reader = new FileReader(filePath);
+
+		
+	}
+}

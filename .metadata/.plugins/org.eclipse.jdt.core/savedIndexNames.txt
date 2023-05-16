@@ -1,0 +1,5 @@
+INDEX VERSION 1.132+C:\Users\dattd\OneDrive\Escritorio\Escuela\Mineria de Datos - Verde\Mineria Nuevo\MineriaDeDatos\.metadata\.plugins\org.eclipse.jdt.core
+1865797976.index
+2195713328.index
+3054384914.index
+591554608.index
