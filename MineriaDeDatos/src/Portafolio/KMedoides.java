@@ -32,7 +32,7 @@ public class KMedoides {
 
 		// Generamos esta instancia para desplazarnos a travez de los metodos de la
 		// clase
-		KMeansClustering kmeans = new KMeansClustering();
+		KMedoides kmeans = new KMedoides();
 
 		List<List<Double>> registroNormalizado = new ArrayList<>();
 		registroNormalizado = kmeans.Normalizar(registro);
@@ -51,15 +51,16 @@ public class KMedoides {
 		List<List<Double>> centros = new ArrayList<>();
 		List<List<Double>> nuevosCentros = new ArrayList<>();
 
-		while (mejoraCentros == true) {
+		int cantLimite = 2;
+		MejoraLocal: while (mejoraCentros == true) {
 			int i = 0;
 			while (mejoraLocal == true) {
-
 				// En caso que sea la primera vez que se calculan los centros entra aqui para
 				// tener valores con loss cauless comparar desspuess
 				if (i == 0) {
 					centros = kmeans.centrosIniciales(cantCentros, registroNormalizado);
 					distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado, kmeans);
+
 				} else {
 
 					// Se calculan loss nuevos centros y su distancia
@@ -77,24 +78,35 @@ public class KMedoides {
 					}
 				}
 
-				// Esto ayuda a decirle al ciclo que no es la primera iteración con ese calor de
+				// Esto ayuda a decirle al ciclo que no es la primera iteración con ese calor
+				// de
 				// centros
 				i++;
 			}
-			
+
 			if (mejorValor == -1 || distanciaTotal < mejorValor) {
 				mejorValor = distanciaTotal;
 				mejorCantCentros = cantCentros;
 				mejoraLocal = true;
 			} else {
-				System.out.println("La cantidad de centros encontrada fue de: " + mejorCantCentros
-						+ " con una distancia de: " + mejorValor);
+
 				mejoraCentros = false;
 			}
 
 			cantCentros++;
+			cantLimite++;
+
+			// En caso que nunca empeore la distancia minima acumulada, se detiene antes de
+			// que cada instancia sea un medoide
+			if (cantLimite == registroNormalizado.size()) {
+				break MejoraLocal;
+			}
 
 		}
+
+		System.out.println("La cantidad de medoides encontrada fue de: " + mejorCantCentros + " con una distancia de: "
+				+ mejorValor);
+
 	}
 
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
@@ -108,7 +120,8 @@ public class KMedoides {
 		double[] mValues = new double[numColumnas];
 		double[] bValues = new double[numColumnas];
 
-		// Inicializa los valores mínimos y máximos con el primer valor de cada columna
+		// Inicializa los valores mínimos y máximos con el primer valor de cada
+		// columna
 		for (int i = 0; i < numColumnas; i++) {
 			minValues[i] = -1;
 			maxValues[i] = -1;
@@ -153,7 +166,7 @@ public class KMedoides {
 	}
 
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
-			KMeansClustering kmeans) {
+			KMedoides kmeans) {
 
 		// Se limpian las listas para asegurarse de poder trabajar con ellas
 		kmeans.distancias.clear();
@@ -265,9 +278,9 @@ public class KMedoides {
 				// la diferencia
 				/*
 				 * El método Math.abs() es un método estático de la clase Math en Java que
-				 * devuelve el valor absoluto de un número. El valor absoluto de un número es su
-				 * distancia desde cero en la recta numérica, sin tener en cuenta su signo. Por
-				 * ejemplo, el valor absoluto de -5 es 5 y el valor absoluto de 5 es 5.
+				 * devuelve el valor absoluto de un número. El valor absoluto de un número es
+				 * su distancia desde cero en la recta numérica, sin tener en cuenta su signo.
+				 * Por ejemplo, el valor absoluto de -5 es 5 y el valor absoluto de 5 es 5.
 				 * 
 				 * El método Math.abs() acepta un argumento de tipo int, long, float o double y
 				 * devuelve un valor del mismo tipo. Internamente, el método Math.abs() calcula
@@ -305,61 +318,105 @@ public class KMedoides {
 			}
 		}
 
-		System.out.println("Centros: " + cantCentros);
-		for (List<Double> fila : sumProdCentros) {
+		KMedoides obtener = new KMedoides();
+		List<List<Double>> medoides = new ArrayList<>();
+
+		// Se obtiene el medoide real
+		for (List<Double> center : sumProdCentros) {
+			List<Double> med = new ArrayList<>();
+			med = obtener.ajustar(center, registroNormalizado);
+			medoides.add(med);
+		}
+
+		System.out.println("Medoide: " + cantCentros);
+		for (List<Double> fila : medoides) {
 			for (Double valor : fila) {
 				System.out.print(" /" + valor + "/ ");
 			}
 			System.out.println("\n");
 		}
 
-		return sumProdCentros;
+		return medoides;
 
 	}
 
 	public List<List<Double>> centrosIniciales(int cantCentros, List<List<Double>> registrosNormalizados) {
-		// Crear una lista vacía para almacenar los centros resultantes
+		// Crear una lista vac�a para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
 
-		// Obtener el número de variables en el registro (El numero de variables es
-		// igual en cualquier pisición de la lista registroNormalizado por eso no
-		// importa de donde tome el size())
-		int numVariables = registrosNormalizados.get(0).size();
+		// Crear una matriz para almacenar las distancias entre cada par de elementos
+		double[][] distancias = new double[registrosNormalizados.size()][registrosNormalizados.size()];
 
-		// Iterar sobre cada variable del registro
-		for (int i = 0; i < numVariables; i++) {
-			// Inicializar las variables min y max para encontrar el valor mínimo y máximo
-			// para esta variable
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
-
-			// Iterar sobre cada registro en registrosNormalizados
-			for (List<Double> registro : registrosNormalizados) {
-				// Obtener el valor de la variable actual para este registro
-				double valor = registro.get(i);
-
-				// Actualizar las variables min y max si es necesario
-				if (valor < min) {
-					min = valor;
+		// Calcular las distancias entre cada par de elementos
+		for (int i = 0; i < registrosNormalizados.size(); i++) {
+			for (int j = i + 1; j < registrosNormalizados.size(); j++) {
+				double distancia = 0.0;
+				for (int k = 0; k < registrosNormalizados.get(i).size(); k++) {
+					distancia += Math.pow(registrosNormalizados.get(i).get(k) - registrosNormalizados.get(j).get(k), 2);
 				}
-				if (valor > max) {
-					max = valor;
-				}
-			}
-
-			// Calcular el intervalo entre los centros
-			double intervalo = (max - min) / (cantCentros - 1);
-
-			// Agregar cada centro a la lista centros
-			for (int j = 0; j < cantCentros; j++) {
-				if (centros.size() <= j) {
-					centros.add(new ArrayList<>());
-				}
-				centros.get(j).add(min + intervalo * j);
+				distancia = distancia * (1.0 / registrosNormalizados.get(0).size());
+				distancias[i][j] = distancia;
+				distancias[j][i] = distancia;
+				// System.out.println(i+","+j+":"+distancias[i][j]); // En esta linea se
+				// imprimen disstancias entre las insstancias si sse retira el comentario
 			}
 		}
 
-		System.out.println("Centros:" + cantCentros);
+		// Crear una lista para almacenar la suma de las distancias para cada elemento
+		double[] sumaDistancias = new double[registrosNormalizados.size()];
+
+		// Calcular la suma de las distancias para cada elemento
+		for (int i = 0; i < registrosNormalizados.size(); i++) {
+			double suma = 0;
+			for (int j = 0; j < registrosNormalizados.size(); j++) {
+				suma += distancias[i][j];
+			}
+			sumaDistancias[i] = suma;
+		}
+
+		// Seleccionar el primer centro como el elemento con la mayor suma de distancias
+		int indiceMaximo = -1;
+		double maximo = Double.MIN_VALUE;
+		for (int i = 0; i < registrosNormalizados.size(); i++) {
+			if (sumaDistancias[i] > maximo) {
+				indiceMaximo = i;
+				maximo = sumaDistancias[i];
+			}
+		}
+		centros.add(registrosNormalizados.get(indiceMaximo));
+
+		// Seleccionar los dem�s centros utilizando el algoritmo PAMhfr
+		for (int i = 1; i < cantCentros; i++) {
+			// Crear una lista para almacenar la distancia m�nima de cada elemento a los
+			// centros actuales
+			double[] distanciaMinimaACentros = new double[registrosNormalizados.size()];
+
+			// Calcular la distancia m�nima de cada elemento a los centros actuales
+			for (int j = 0; j < registrosNormalizados.size(); j++) {
+				double distanciaMinima = Double.MAX_VALUE;
+				for (List<Double> centro : centros) {
+					int indiceCentro = registrosNormalizados.indexOf(centro);
+					if (distancias[j][indiceCentro] < distanciaMinima) {
+						distanciaMinima = distancias[j][indiceCentro];
+					}
+				}
+				distanciaMinimaACentros[j] = distanciaMinima;
+			}
+
+			// Seleccionar el siguiente centro como el elemento con la mayor distancia
+			// m�nima a los centros actuales
+			indiceMaximo = -1;
+			maximo = Double.MIN_VALUE;
+			for (int j = 0; j < registrosNormalizados.size(); j++) {
+				if (distanciaMinimaACentros[j] > maximo) {
+					indiceMaximo = j;
+					maximo = distanciaMinimaACentros[j];
+				}
+			}
+			centros.add(registrosNormalizados.get(indiceMaximo));
+		}
+		
+		System.out.println("Medoide: " + cantCentros);
 		for (List<Double> fila : centros) {
 			for (Double valor : fila) {
 				System.out.print(" /" + valor + "/ ");
@@ -370,4 +427,24 @@ public class KMedoides {
 		return centros;
 	}
 
+	public List<Double> ajustar(List<Double> centro, List<List<Double>> registroNormalizado) {
+		List<Double> instanciaMasCercana = null;
+		double distanciaMinima = Double.MAX_VALUE;
+
+		// Se calcula la disstancia euclidiana del centro obtenido a todas lass
+		// instancias del registro y luego se obtiene la insstancia con menor
+		// alejamiento
+		for (List<Double> instancia : registroNormalizado) {
+			double distancia = 0.0;
+			for (int i = 0; i < instancia.size(); i++) {
+				distancia += Math.pow(instancia.get(i) - centro.get(i), 2);
+			}
+			distancia = distancia * (1.0 / centro.size());
+			if (distancia < distanciaMinima) {
+				distanciaMinima = distancia;
+				instanciaMasCercana = instancia;
+			}
+		}
+		return instanciaMasCercana;
+	}
 }
