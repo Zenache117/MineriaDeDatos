@@ -50,7 +50,7 @@ public class KMeansClustering {
 		List<List<Double>> centros = new ArrayList<>();
 		List<List<Double>> nuevosCentros = new ArrayList<>();
 
-		while (mejoraCentros == true) {
+		while (mejoraCentros == true && cantCentros<6) {
 			int i = 0;
 			while (mejoraLocal == true) {
 
@@ -76,11 +76,12 @@ public class KMeansClustering {
 					}
 				}
 
-				// Esto ayuda a decirle al ciclo que no es la primera iteración con ese calor de
+				// Esto ayuda a decirle al ciclo que no es la primera iteración con ese calor
+				// de
 				// centros
 				i++;
 			}
-			
+
 			if (mejorValor == -1 || distanciaTotal < mejorValor) {
 				mejorValor = distanciaTotal;
 				mejorCantCentros = cantCentros;
@@ -107,7 +108,8 @@ public class KMeansClustering {
 		double[] mValues = new double[numColumnas];
 		double[] bValues = new double[numColumnas];
 
-		// Inicializa los valores mínimos y máximos con el primer valor de cada columna
+		// Inicializa los valores mínimos y máximos con el primer valor de cada
+		// columna
 		for (int i = 0; i < numColumnas; i++) {
 			minValues[i] = -1;
 			maxValues[i] = -1;
@@ -264,9 +266,9 @@ public class KMeansClustering {
 				// la diferencia
 				/*
 				 * El método Math.abs() es un método estático de la clase Math en Java que
-				 * devuelve el valor absoluto de un número. El valor absoluto de un número es su
-				 * distancia desde cero en la recta numérica, sin tener en cuenta su signo. Por
-				 * ejemplo, el valor absoluto de -5 es 5 y el valor absoluto de 5 es 5.
+				 * devuelve el valor absoluto de un número. El valor absoluto de un número es
+				 * su distancia desde cero en la recta numérica, sin tener en cuenta su signo.
+				 * Por ejemplo, el valor absoluto de -5 es 5 y el valor absoluto de 5 es 5.
 				 * 
 				 * El método Math.abs() acepta un argumento de tipo int, long, float o double y
 				 * devuelve un valor del mismo tipo. Internamente, el método Math.abs() calcula
@@ -320,51 +322,1414 @@ public class KMeansClustering {
 		// Crear una lista vacía para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
 
-		// Obtener el número de variables en el registro (El numero de variables es
-		// igual en cualquier pisición de la lista registroNormalizado por eso no
-		// importa de donde tome el size())
-		int numVariables = registrosNormalizados.get(0).size();
-
-		// Iterar sobre cada variable del registro
-		for (int i = 0; i < numVariables; i++) {
-			// Inicializar las variables min y max para encontrar el valor mínimo y máximo
-			// para esta variable
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
-
-			// Iterar sobre cada registro en registrosNormalizados
-			for (List<Double> registro : registrosNormalizados) {
-				// Obtener el valor de la variable actual para este registro
-				double valor = registro.get(i);
-
-				// Actualizar las variables min y max si es necesario
-				if (valor < min) {
-					min = valor;
+		// Las listas utilizadas usan diferentes nombres y se generan disstintas en cada
+				// case para mejor manejo y que no se entorpezca la ejecuci�n dentro del switch
+				switch (cantCentros) {
+				case 2:
+					List<Double> valores0 = new ArrayList<>();
+					List<Double> valores1 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores0.add(0.0);
+						valores0.add(0.0);
+						
+						valores1.add(1.0);
+						valores1.add(1.0);
+						
+						centros.add(valores0);
+						centros.add(valores1);
+						break;
+					case 3:
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						
+						centros.add(valores0);
+						centros.add(valores1);
+						break;
+					case 4:
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						
+						centros.add(valores0);
+						centros.add(valores1);
+						break;
+					case 5:
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						valores0.add(0.0);
+						
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						valores1.add(1.0);
+						
+						centros.add(valores0);
+						centros.add(valores1);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 3:
+					List<Double> valores2 = new ArrayList<>();
+					List<Double> valores3 = new ArrayList<>();
+					List<Double> valores4 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores2.add(0.0);
+						valores2.add(0.0);
+						
+						valores3.add(0.5);
+						valores3.add(0.5);
+						
+						valores4.add(1.0);
+						valores4.add(1.0);
+						
+						centros.add(valores2);
+						centros.add(valores3);
+						centros.add(valores4);
+						break;
+					case 3:
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						
+						valores3.add(0.5);
+						valores3.add(0.5);
+						valores3.add(0.5);
+						
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						
+						centros.add(valores2);
+						centros.add(valores3);
+						centros.add(valores4);
+						break;
+					case 4:
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						
+						valores3.add(1.0);
+						valores3.add(0.0);
+						valores3.add(0.0);
+						valores3.add(0.0);
+						
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						
+						centros.add(valores2);
+						centros.add(valores3);
+						centros.add(valores4);
+						break;
+					case 5:
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						valores2.add(0.0);
+						
+						valores3.add(1.0);
+						valores3.add(0.0);
+						valores3.add(0.0);
+						valores3.add(0.0);
+						valores3.add(0.0);
+						
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						valores4.add(1.0);
+						
+						centros.add(valores2);
+						centros.add(valores3);
+						centros.add(valores4);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 4:
+					List<Double> valores5 = new ArrayList<>();
+					List<Double> valores6 = new ArrayList<>();
+					List<Double> valores7 = new ArrayList<>();
+					List<Double> valores8 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores5.add(0.0);
+						valores5.add(0.0);
+						
+						valores6.add(1.0);
+						valores6.add(1.0);
+						
+						valores7.add(0.0);
+						valores7.add(1.0);
+						
+						valores8.add(1.0);
+						valores8.add(0.0);
+						
+						centros.add(valores5);
+						centros.add(valores6);
+						centros.add(valores7);
+						centros.add(valores8);
+						break;
+					case 3:
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						
+						valores7.add(1.0);
+						valores7.add(1.0);
+						valores7.add(0.0);
+						valores7.add(0.0);
+						
+						valores8.add(0.0);
+						valores8.add(0.0);
+						valores8.add(1.0);
+						valores8.add(1.0);
+						
+						centros.add(valores5);
+						centros.add(valores6);
+						centros.add(valores7);
+						centros.add(valores8);
+						break;
+					case 4:
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						
+						valores7.add(0.0);
+						valores7.add(0.0);
+						valores7.add(0.0);
+						valores7.add(1.0);
+						
+						valores8.add(1.0);
+						valores8.add(0.0);
+						valores8.add(0.0);
+						valores8.add(0.0);
+						
+						centros.add(valores5);
+						centros.add(valores6);
+						centros.add(valores7);
+						centros.add(valores8);
+						break;
+					case 5:
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						valores5.add(0.0);
+						
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						valores6.add(1.0);
+						
+						valores7.add(1.0);
+						valores7.add(1.0);
+						valores7.add(1.0);
+						valores7.add(1.0);
+						valores7.add(0.0);
+						
+						valores8.add(0.0);
+						valores8.add(0.0);
+						valores8.add(0.0);
+						valores8.add(0.0);
+						valores8.add(1.0);
+						
+						centros.add(valores5);
+						centros.add(valores6);
+						centros.add(valores7);
+						centros.add(valores8);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 5:
+					List<Double> valores9 = new ArrayList<>();
+					List<Double> valores10 = new ArrayList<>();
+					List<Double> valores11 = new ArrayList<>();
+					List<Double> valores12 = new ArrayList<>();
+					List<Double> valores13 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores9.add(0.0);
+						valores9.add(0.0);
+						
+						valores10.add(1.0);
+						valores10.add(1.0);
+						
+						valores11.add(1.0);
+						valores11.add(0.0);
+						
+						valores12.add(0.0);
+						valores12.add(1.0);
+						
+						valores13.add(0.5);
+						valores13.add(0.5);
+						
+						centros.add(valores9);
+						centros.add(valores10);
+						centros.add(valores11);
+						centros.add(valores12);
+						centros.add(valores13);
+						break;
+					case 3:
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(0.0);
+						
+						valores12.add(0.0);
+						valores12.add(0.0);
+						valores12.add(1.0);
+						
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						
+						centros.add(valores9);
+						centros.add(valores10);
+						centros.add(valores11);
+						centros.add(valores12);
+						centros.add(valores13);
+						break;
+					case 4:
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(0.0);
+						
+						valores12.add(0.0);
+						valores12.add(1.0);
+						valores12.add(1.0);
+						valores12.add(1.0);
+						
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						
+						centros.add(valores9);
+						centros.add(valores10);
+						centros.add(valores11);
+						centros.add(valores12);
+						centros.add(valores13);
+						break;
+					case 5:
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						valores9.add(0.0);
+						
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						valores10.add(1.0);
+						
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(1.0);
+						valores11.add(0.0);
+						
+						valores12.add(0.0);
+						valores12.add(0.0);
+						valores12.add(0.0);
+						valores12.add(0.0);
+						valores12.add(1.0);
+						
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						valores13.add(0.5);
+						
+						centros.add(valores9);
+						centros.add(valores10);
+						centros.add(valores11);
+						centros.add(valores12);
+						centros.add(valores13);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 6:
+					List<Double> valores14 = new ArrayList<>();
+					List<Double> valores15 = new ArrayList<>();
+					List<Double> valores16 = new ArrayList<>();
+					List<Double> valores17 = new ArrayList<>();
+					List<Double> valores18 = new ArrayList<>();
+					List<Double> valores19 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores14.add(0.0);
+						valores14.add(0.0);
+						
+						valores15.add(1.0);
+						valores15.add(1.0);
+						
+						valores16.add(1.0);
+						valores16.add(0.0);
+						
+						valores17.add(0.0);
+						valores17.add(1.0);
+						
+						valores18.add(0.33);
+						valores18.add(0.33);
+						
+						valores19.add(0.66);
+						valores19.add(0.66);
+						
+						centros.add(valores14);
+						centros.add(valores15);
+						centros.add(valores16);
+						centros.add(valores17);
+						centros.add(valores18);
+						centros.add(valores19);
+						break;
+					case 3:
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(0.0);
+						
+						valores16.add(0.0);
+						valores16.add(0.0);
+						valores16.add(1.0);
+						
+						valores17.add(1.0);
+						valores17.add(0.0);
+						valores17.add(0.0);
+						
+						valores18.add(0.0);
+						valores18.add(1.0);
+						valores18.add(1.0);
+						
+						valores19.add(0.0);
+						valores19.add(1.0);
+						valores19.add(0.0);
+						
+						centros.add(valores14);
+						centros.add(valores15);
+						centros.add(valores16);
+						centros.add(valores17);
+						centros.add(valores18);
+						centros.add(valores19);
+						break;
+					case 4:
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(0.0);
+						
+						valores17.add(0.0);
+						valores17.add(0.0);
+						valores17.add(0.0);
+						valores17.add(1.0);
+						
+						valores18.add(1.0);
+						valores18.add(1.0);
+						valores18.add(0.0);
+						valores18.add(0.0);
+						
+						valores19.add(0.0);
+						valores19.add(0.0);
+						valores19.add(1.0);
+						valores19.add(1.0);
+						
+						centros.add(valores14);
+						centros.add(valores15);
+						centros.add(valores16);
+						centros.add(valores17);
+						centros.add(valores18);
+						centros.add(valores19);
+						break;
+					case 5:
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						valores14.add(0.0);
+						
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						valores15.add(1.0);
+						
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(1.0);
+						valores16.add(0.0);
+						
+						valores17.add(0.0);
+						valores17.add(0.0);
+						valores17.add(0.0);
+						valores17.add(0.0);
+						valores17.add(1.0);
+						
+						valores18.add(0.0);
+						valores18.add(0.0);
+						valores18.add(0.0);
+						valores18.add(1.0);
+						valores18.add(1.0);
+						
+						valores19.add(1.0);
+						valores19.add(1.0);
+						valores19.add(1.0);
+						valores19.add(0.0);
+						valores19.add(0.0);
+						
+						centros.add(valores14);
+						centros.add(valores15);
+						centros.add(valores16);
+						centros.add(valores17);
+						centros.add(valores18);
+						centros.add(valores19);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 7:
+					List<Double> valores20 = new ArrayList<>();
+					List<Double> valores21 = new ArrayList<>();
+					List<Double> valores22 = new ArrayList<>();
+					List<Double> valores23 = new ArrayList<>();
+					List<Double> valores24 = new ArrayList<>();
+					List<Double> valores25 = new ArrayList<>();
+					List<Double> valores26 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores20.add(0.0);
+						valores20.add(0.0);
+						
+						valores21.add(1.0);
+						valores21.add(1.0);
+						
+						valores22.add(1.0);
+						valores22.add(0.0);
+						
+						valores23.add(0.0);
+						valores23.add(1.0);
+						
+						valores24.add(0.33);
+						valores24.add(0.33);
+						
+						valores25.add(0.66);
+						valores25.add(0.66);
+						
+						valores26.add(0.5);
+						valores26.add(0.5);
+						
+						centros.add(valores20);
+						centros.add(valores21);
+						centros.add(valores22);
+						centros.add(valores23);
+						centros.add(valores24);
+						centros.add(valores25);
+						centros.add(valores26);
+						break;
+					case 3:
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(0.0);
+						
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(1.0);
+						
+						valores24.add(1.0);
+						valores24.add(0.0);
+						valores24.add(0.0);
+						
+						valores25.add(0.0);
+						valores25.add(1.0);
+						valores25.add(1.0);
+						
+						valores26.add(0.5);
+						valores26.add(0.5);
+						valores26.add(0.5);
+						
+						centros.add(valores20);
+						centros.add(valores21);
+						centros.add(valores22);
+						centros.add(valores23);
+						centros.add(valores24);
+						centros.add(valores25);
+						centros.add(valores26);
+						break;
+					case 4:
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(0.0);
+						
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(1.0);
+						
+						valores24.add(0.0);
+						valores24.add(0.0);
+						valores24.add(1.0);
+						valores24.add(1.0);
+						
+						valores25.add(1.0);
+						valores25.add(1.0);
+						valores25.add(0.0);
+						valores25.add(0.0);
+						
+						valores26.add(1.0);
+						valores26.add(0.0);
+						valores26.add(0.0);
+						valores26.add(0.0);
+						
+						centros.add(valores20);
+						centros.add(valores21);
+						centros.add(valores22);
+						centros.add(valores23);
+						centros.add(valores24);
+						centros.add(valores25);
+						centros.add(valores26);
+						break;
+					case 5:
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						valores20.add(0.0);
+						
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						valores21.add(1.0);
+						
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(1.0);
+						valores22.add(0.0);
+						
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(0.0);
+						valores23.add(1.0);
+						
+						valores24.add(1.0);
+						valores24.add(1.0);
+						valores24.add(1.0);
+						valores24.add(0.0);
+						valores24.add(0.0);
+						
+						valores25.add(0.0);
+						valores25.add(0.0);
+						valores25.add(0.0);
+						valores25.add(1.0);
+						valores25.add(1.0);
+						
+						valores26.add(1.0);
+						valores26.add(0.0);
+						valores26.add(0.0);
+						valores26.add(0.0);
+						valores26.add(0.0);
+						
+						centros.add(valores20);
+						centros.add(valores21);
+						centros.add(valores22);
+						centros.add(valores23);
+						centros.add(valores24);
+						centros.add(valores25);
+						centros.add(valores26);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 8:
+					List<Double> valores27 = new ArrayList<>();
+					List<Double> valores28 = new ArrayList<>();
+					List<Double> valores29 = new ArrayList<>();
+					List<Double> valores30 = new ArrayList<>();
+					List<Double> valores31 = new ArrayList<>();
+					List<Double> valores32 = new ArrayList<>();
+					List<Double> valores33 = new ArrayList<>();
+					List<Double> valores34 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores27.add(0.0);
+						valores27.add(0.0);
+						
+						valores28.add(1.0);
+						valores28.add(1.0);
+						
+						valores29.add(1.0);
+						valores29.add(0.0);
+						
+						valores30.add(0.0);
+						valores30.add(1.0);
+						
+						valores31.add(0.33);
+						valores31.add(0.33);
+						
+						valores32.add(0.66);
+						valores32.add(0.66);
+						
+						valores33.add(0.33);
+						valores33.add(0.66);
+						
+						valores34.add(0.66);
+						valores34.add(0.33);
+						
+						
+						centros.add(valores27);
+						centros.add(valores28);
+						centros.add(valores29);
+						centros.add(valores30);
+						centros.add(valores31);
+						centros.add(valores32);
+						centros.add(valores33);
+						centros.add(valores34);
+						break;
+					case 3:
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(0.0);
+						
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(1.0);
+						
+						valores31.add(1.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						
+						valores32.add(0.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						
+						valores33.add(1.0);
+						valores33.add(0.0);
+						valores33.add(1.0);
+						
+						valores34.add(0.0);
+						valores34.add(1.0);
+						valores34.add(0.0);
+						
+						centros.add(valores27);
+						centros.add(valores28);
+						centros.add(valores29);
+						centros.add(valores30);
+						centros.add(valores31);
+						centros.add(valores32);
+						centros.add(valores33);
+						centros.add(valores34);
+						break;
+					case 4:
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(0.0);
+						
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(1.0);
+						
+						valores31.add(1.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						
+						valores32.add(0.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						
+						valores33.add(1.0);
+						valores33.add(1.0);
+						valores33.add(0.0);
+						valores33.add(0.0);
+						
+						valores34.add(0.0);
+						valores34.add(0.0);
+						valores34.add(1.0);
+						valores34.add(1.0);
+						
+						centros.add(valores27);
+						centros.add(valores28);
+						centros.add(valores29);
+						centros.add(valores30);
+						centros.add(valores31);
+						centros.add(valores32);
+						centros.add(valores33);
+						centros.add(valores34);
+						break;
+					case 5:
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						valores27.add(0.0);
+						
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						valores28.add(1.0);
+						
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(1.0);
+						valores29.add(0.0);
+						
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(0.0);
+						valores30.add(1.0);
+						
+						valores31.add(1.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						valores31.add(0.0);
+						
+						valores32.add(0.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						valores32.add(1.0);
+						
+						valores33.add(1.0);
+						valores33.add(1.0);
+						valores33.add(1.0);
+						valores33.add(0.0);
+						valores33.add(0.0);
+						
+						valores34.add(0.0);
+						valores34.add(0.0);
+						valores34.add(0.0);
+						valores34.add(1.0);
+						valores34.add(1.0);
+						
+						centros.add(valores27);
+						centros.add(valores28);
+						centros.add(valores29);
+						centros.add(valores30);
+						centros.add(valores31);
+						centros.add(valores32);
+						centros.add(valores33);
+						centros.add(valores34);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 9:
+					List<Double> valores35 = new ArrayList<>();
+					List<Double> valores36 = new ArrayList<>();
+					List<Double> valores37 = new ArrayList<>();
+					List<Double> valores38 = new ArrayList<>();
+					List<Double> valores39 = new ArrayList<>();
+					List<Double> valores40 = new ArrayList<>();
+					List<Double> valores41 = new ArrayList<>();
+					List<Double> valores42 = new ArrayList<>();
+					List<Double> valores43 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores35.add(0.0);
+						valores35.add(0.0);
+						
+						valores36.add(1.0);
+						valores36.add(1.0);
+						
+						valores37.add(1.0);
+						valores37.add(0.0);
+						
+						valores38.add(0.0);
+						valores38.add(1.0);
+						
+						valores39.add(0.33);
+						valores39.add(0.33);
+						
+						valores40.add(0.66);
+						valores40.add(0.66);
+						
+						valores41.add(0.33);
+						valores41.add(0.66);
+						
+						valores42.add(0.66);
+						valores42.add(0.33);
+						
+						valores43.add(0.5);
+						valores43.add(0.5);
+						
+						centros.add(valores35);
+						centros.add(valores36);
+						centros.add(valores37);
+						centros.add(valores38);
+						centros.add(valores39);
+						centros.add(valores40);
+						centros.add(valores41);
+						centros.add(valores42);
+						centros.add(valores43);
+						break;
+					case 3:
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(0.0);
+						
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(1.0);
+						
+						valores39.add(1.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						
+						valores40.add(0.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						
+						valores41.add(1.0);
+						valores41.add(0.0);
+						valores41.add(1.0);
+						
+						valores42.add(0.0);
+						valores42.add(1.0);
+						valores42.add(0.0);
+						
+						valores43.add(0.5);
+						valores43.add(0.5);
+						valores43.add(0.5);
+						
+						centros.add(valores35);
+						centros.add(valores36);
+						centros.add(valores37);
+						centros.add(valores38);
+						centros.add(valores39);
+						centros.add(valores40);
+						centros.add(valores41);
+						centros.add(valores42);
+						centros.add(valores43);
+						break;
+					case 4:
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(0.0);
+						
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(1.0);
+						
+						valores39.add(1.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						
+						valores40.add(0.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						
+						valores41.add(1.0);
+						valores41.add(1.0);
+						valores41.add(0.0);
+						valores41.add(0.0);
+						
+						valores42.add(0.0);
+						valores42.add(0.0);
+						valores42.add(1.0);
+						valores42.add(1.0);
+						
+						valores43.add(1.0);
+						valores43.add(0.0);
+						valores43.add(0.0);
+						valores43.add(1.0);
+						
+						centros.add(valores35);
+						centros.add(valores36);
+						centros.add(valores37);
+						centros.add(valores38);
+						centros.add(valores39);
+						centros.add(valores40);
+						centros.add(valores41);
+						centros.add(valores42);
+						centros.add(valores43);
+						break;
+					case 5:
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						valores35.add(0.0);
+						
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						valores36.add(1.0);
+						
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(1.0);
+						valores37.add(0.0);
+						
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(0.0);
+						valores38.add(1.0);
+						
+						valores39.add(1.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						valores39.add(0.0);
+						
+						valores40.add(0.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						valores40.add(1.0);
+						
+						valores41.add(1.0);
+						valores41.add(1.0);
+						valores41.add(1.0);
+						valores41.add(0.0);
+						valores41.add(0.0);
+						
+						valores42.add(0.0);
+						valores42.add(0.0);
+						valores42.add(0.0);
+						valores42.add(1.0);
+						valores42.add(1.0);
+						
+						valores43.add(0.0);
+						valores43.add(0.0);
+						valores43.add(1.0);
+						valores43.add(1.0);
+						valores43.add(1.0);
+						
+						centros.add(valores35);
+						centros.add(valores36);
+						centros.add(valores37);
+						centros.add(valores38);
+						centros.add(valores39);
+						centros.add(valores40);
+						centros.add(valores41);
+						centros.add(valores42);
+						centros.add(valores43);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				case 10:
+					List<Double> valores44 = new ArrayList<>();
+					List<Double> valores45 = new ArrayList<>();
+					List<Double> valores46 = new ArrayList<>();
+					List<Double> valores47 = new ArrayList<>();
+					List<Double> valores48 = new ArrayList<>();
+					List<Double> valores49 = new ArrayList<>();
+					List<Double> valores50 = new ArrayList<>();
+					List<Double> valores51 = new ArrayList<>();
+					List<Double> valores52 = new ArrayList<>();
+					List<Double> valores53 = new ArrayList<>();
+					switch (registrosNormalizados.get(0).size()) {
+					case 2:
+						valores44.add(0.0);
+						valores44.add(0.0);
+						
+						valores45.add(1.0);
+						valores45.add(1.0);
+						
+						valores46.add(1.0);
+						valores46.add(0.0);
+						
+						valores47.add(0.0);
+						valores47.add(1.0);
+						
+						valores48.add(0.2);
+						valores48.add(0.2);
+						
+						valores49.add(0.8);
+						valores49.add(0.8);
+						
+						valores50.add(0.2);
+						valores50.add(0.8);
+						
+						valores51.add(0.8);
+						valores51.add(0.2);
+						
+						valores52.add(0.6);
+						valores52.add(0.6);
+						
+						valores53.add(0.4);
+						valores53.add(0.4);
+						
+						centros.add(valores44);
+						centros.add(valores45);
+						centros.add(valores46);
+						centros.add(valores47);
+						centros.add(valores48);
+						centros.add(valores49);
+						centros.add(valores50);
+						centros.add(valores51);
+						centros.add(valores52);
+						centros.add(valores53);
+						break;
+					case 3:
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(0.0);
+						
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(1.0);
+						
+						valores48.add(1.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						
+						valores49.add(0.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						
+						valores50.add(1.0);
+						valores50.add(0.0);
+						valores50.add(1.0);
+						
+						valores51.add(0.0);
+						valores51.add(1.0);
+						valores51.add(0.0);
+						
+						valores52.add(0.33);
+						valores52.add(0.33);
+						valores52.add(0.33);
+						
+						valores53.add(0.66);
+						valores53.add(0.66);
+						valores53.add(0.66);
+						
+						centros.add(valores44);
+						centros.add(valores45);
+						centros.add(valores46);
+						centros.add(valores47);
+						centros.add(valores48);
+						centros.add(valores49);
+						centros.add(valores50);
+						centros.add(valores51);
+						centros.add(valores52);
+						centros.add(valores53);
+						break;
+					case 4:
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(0.0);
+						
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(1.0);
+						
+						valores48.add(1.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						
+						valores49.add(0.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						
+						valores50.add(1.0);
+						valores50.add(1.0);
+						valores50.add(0.0);
+						valores50.add(0.0);
+						
+						valores51.add(0.0);
+						valores51.add(0.0);
+						valores51.add(1.0);
+						valores51.add(1.0);
+						
+						valores52.add(1.0);
+						valores52.add(0.0);
+						valores52.add(0.0);
+						valores52.add(1.0);
+						
+						valores52.add(0.0);
+						valores52.add(1.0);
+						valores52.add(1.0);
+						valores52.add(0.0);
+						
+						centros.add(valores44);
+						centros.add(valores45);
+						centros.add(valores46);
+						centros.add(valores47);
+						centros.add(valores48);
+						centros.add(valores49);
+						centros.add(valores50);
+						centros.add(valores51);
+						centros.add(valores52);
+						centros.add(valores53);
+						break;
+					case 5:
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						valores44.add(0.0);
+						
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						valores45.add(1.0);
+						
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(1.0);
+						valores46.add(0.0);
+						
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(0.0);
+						valores47.add(1.0);
+						
+						valores48.add(1.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						valores48.add(0.0);
+						
+						valores49.add(0.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						valores49.add(1.0);
+						
+						valores50.add(1.0);
+						valores50.add(1.0);
+						valores50.add(1.0);
+						valores50.add(0.0);
+						valores50.add(0.0);
+						
+						valores51.add(0.0);
+						valores51.add(0.0);
+						valores51.add(0.0);
+						valores51.add(1.0);
+						valores51.add(1.0);
+						
+						valores52.add(0.0);
+						valores52.add(0.0);
+						valores52.add(1.0);
+						valores52.add(1.0);
+						valores52.add(1.0);
+						
+						valores53.add(1.0);
+						valores53.add(1.0);
+						valores53.add(0.0);
+						valores53.add(0.0);
+						valores53.add(0.0);
+						
+						centros.add(valores44);
+						centros.add(valores45);
+						centros.add(valores46);
+						centros.add(valores47);
+						centros.add(valores48);
+						centros.add(valores49);
+						centros.add(valores50);
+						centros.add(valores51);
+						centros.add(valores52);
+						centros.add(valores53);
+						break;
+					default:
+						System.out.println("Cantidad de variables de registro no valida.");
+						System.exit(0);
+						break;
+					}
+					break;
+				default:
+					System.out.println("Cantidad de centros exedida.");
+					break;
 				}
-				if (valor > max) {
-					max = valor;
+				
+				System.out.println("Centros:" + cantCentros);
+				for (List<Double> fila : centros) {
+					for (Double valor : fila) {
+						System.out.print(" /" + valor + "/ ");
+					}
+					System.out.println("\n");
 				}
-			}
-
-			// Calcular el intervalo entre los centros
-			double intervalo = (max - min) / (cantCentros - 1);
-
-			// Agregar cada centro a la lista centros
-			for (int j = 0; j < cantCentros; j++) {
-				if (centros.size() <= j) {
-					centros.add(new ArrayList<>());
-				}
-				centros.get(j).add(min + intervalo * j);
-			}
-		}
-
-		System.out.println("Centros:" + cantCentros);
-		for (List<Double> fila : centros) {
-			for (Double valor : fila) {
-				System.out.print(" /" + valor + "/ ");
-			}
-			System.out.println("\n");
-		}
 
 		return centros;
 	}

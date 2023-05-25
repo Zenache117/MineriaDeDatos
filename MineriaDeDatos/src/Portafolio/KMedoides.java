@@ -52,7 +52,7 @@ public class KMedoides {
 		List<List<Double>> nuevosCentros = new ArrayList<>();
 
 		int cantLimite = 2;
-		MejoraLocal: while (mejoraCentros == true) {
+		MejoraLocal: while (mejoraCentros == true && cantCentros<10) {
 			int i = 0;
 			while (mejoraLocal == true) {
 				// En caso que sea la primera vez que se calculan los centros entra aqui para
