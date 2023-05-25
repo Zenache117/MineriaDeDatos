@@ -1,4 +1,5 @@
 package Portafolio;
+
 /*
 Este codigo es una implementación de un algoritmo para generar arboles de decisión a partir de un archivo CSV.
 A continuaciÃ³n, se presenta una descripciÃ³n de las partes principales del cÃ³digo:
@@ -73,6 +74,11 @@ public class MejorArbolDeDesicion {
 		// Mostrar el diálogo para que el usuario seleccione un archivo
 		fileChooser.setVisible(true);
 
+		// Crear un nuevo objeto FileDialog
+		CarpetaDestino carpetaDestino = new CarpetaDestino();
+
+		String rutaCarpetaDestino = carpetaDestino.selectCarpet();
+
 		// Verificar si el usuario seleccionó un archivo
 		if (fileChooser.getFile() != null) {
 			// Obtener el archivo seleccionado
@@ -120,13 +126,7 @@ public class MejorArbolDeDesicion {
 					}
 				}
 
-				// Imprimir árbol de la permutación actual en un archivo de texto
-				// File outputFile = new
-				// File("C:\\Users\\mauri\\OneDrive\\Documentos\\Arboles\\permutacion_" + perm +
-				// ".txt");
-				// FileWriter writer = new FileWriter(outputFile);
-				// writer.write("Permutación: " + perm + "\n");
-				// printTreeToFile(root, "", true, writer);
+				
 
 				// Formamos una lista de las instancias en el orden de la permutación
 				List<String> sortedLines = new ArrayList<>();
@@ -156,10 +156,20 @@ public class MejorArbolDeDesicion {
 						arbolMinEnt = perm;
 					}
 				}
-				// writer.close();
+				
+				
+				// Imprimir árbol de la permutación actual en un archivo de texto
+				File outputFile = new File(rutaCarpetaDestino + "permutacion_" + perm + ".txt");
+				FileWriter writer = new FileWriter(outputFile);
+				writer.write("Permutación: " + perm + " Entropia del arbol: " + ent + "\n");
+				printTreeToFile(root, "", true, writer);
+				
+				
+				
+				 writer.close();
 			}
 			// Imprimir en consola el mejor resultado
-			System.out.println("Permutación: " + arbolMinEnt + "Minima entropia: " + minEnt);
+			System.out.println("Mejor Permutación: " + arbolMinEnt + "Minima entropia: " + minEnt);
 
 			// Imprimir el mejor arbol y su entropia
 			Node<String> root = new Node<String>(arbolMinEnt.toString());
@@ -177,13 +187,8 @@ public class MejorArbolDeDesicion {
 				}
 			}
 
-			// Crear un nuevo objeto FileDialog
-			CarpetaDestino carpetaDestino = new CarpetaDestino();
-
-			String rutaCarpetaDestino = carpetaDestino.selectCarpet();
-
 			// Imprimir el arbol de desición de mejor entropia
-			File outputFile = new File(rutaCarpetaDestino + "permutacion_" + arbolMinEnt + ".txt");
+			File outputFile = new File(rutaCarpetaDestino + "Mejor permutacion_" + arbolMinEnt + ".txt");
 			FileWriter writer = new FileWriter(outputFile);
 			writer.write("Permutación: " + arbolMinEnt + " Entropia del arbol: " + minEnt + "\n");
 			printTreeToFile(root, "", true, writer);
@@ -257,7 +262,8 @@ public class MejorArbolDeDesicion {
 						break Conteo;
 					} else {
 						if (!revisado2.contains(tipoPert)) {
-							// Si la tabla tiene mas de una columna, las instancias deberían dividirse entre
+							// Si la tabla tiene mas de una columna, las instancias deberían dividirse
+							// entre
 							// la cantidad de insatncias a las que pertenecen.
 							// Obtener el tipo de instancia (último valor de la fila con respecto al valor
 							// que se revisa)
