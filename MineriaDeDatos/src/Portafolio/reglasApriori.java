@@ -12,7 +12,9 @@ import java.util.Set;
 public class reglasApriori {
     private static final double MIN_SUPPORT = 0;
     public static void main(String[] args) {
-        String csvPath = "C:/Users/dattd/OneDrive/Escritorio/Escuela/Mineria de Datos - Verde/Mineria Nuevo/MineriaDeDatos/MineriaDeDatos/src/Portafolio/Reglas.csv";
+    	
+    	SeleccionarArchivo select = new SeleccionarArchivo();
+		String csvPath = select.selectFile();
 
         List<List<String>> transactions = readTransactionsFromCSV(csvPath);
         List<Set<String>> frequentItemsets = generateFrequentItemsets(transactions);
