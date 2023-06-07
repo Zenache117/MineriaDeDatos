@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -18,6 +20,9 @@ public class KMedoides {
 	// se contiene representa las distancias de todas las instancias hacia un centro
 	// y la lissta general contiene la de todos los centros
 	List<List<Double>> distancias = new ArrayList<>();
+
+	// Una lista para guardar los valores de pureza de cada instancia
+	List<Double> pureza = new ArrayList<>();
 
 	public static void main(String[] args) {
 		// Seleccionar CSV
@@ -33,9 +38,35 @@ public class KMedoides {
 		// Generamos esta instancia para desplazarnos a travez de los metodos de la
 		// clase
 		KMedoides kmeans = new KMedoides();
-
 		List<List<Double>> registroNormalizado = new ArrayList<>();
-		registroNormalizado = kmeans.Normalizar(registro);
+		
+		
+		// Se elige si se normaliza o no el registro esto originalmente con la intención de comparar con el dataset utilizado en el documento
+		int opcion = JOptionPane.showOptionDialog(
+				null,
+				"Elije si normalizar o no el dataset",
+				"Normalizacion?",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,
+				new Object[] { "Si normalizar", "No normalizar" },
+				"Opción 1"
+				);
+
+		if (opcion == JOptionPane.YES_OPTION) {
+			registroNormalizado = kmeans.Normalizar(registro);
+		} else if (opcion == JOptionPane.NO_OPTION) {
+			for (CSVRecord record : registro) {
+			    List<Double> fila = new ArrayList<>();
+			    for (String valor : record) {
+			        fila.add(Double.parseDouble(valor));
+			    }
+			    registroNormalizado.add(fila);
+			}
+		}
+
+
+		kmeans.Pureza(registroNormalizado, kmeans);
 
 		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
@@ -52,7 +83,7 @@ public class KMedoides {
 		List<List<Double>> nuevosCentros = new ArrayList<>();
 
 		int cantLimite = 2;
-		MejoraLocal: while (mejoraCentros == true && cantCentros<10	) {
+		MejoraLocal: while (mejoraCentros == true && cantCentros < 10) {
 			int i = 0;
 			while (mejoraLocal == true) {
 				// En caso que sea la primera vez que se calculan los centros entra aqui para
@@ -415,7 +446,7 @@ public class KMedoides {
 			}
 			centros.add(registrosNormalizados.get(indiceMaximo));
 		}
-		
+
 		System.out.println("Medoide: " + cantCentros);
 		for (List<Double> fila : centros) {
 			for (Double valor : fila) {
@@ -447,4 +478,29 @@ public class KMedoides {
 		}
 		return instanciaMasCercana;
 	}
+	
+	// Generar la lista de valores de pureza para cada instancia del datasset utilizado
+	public void Pureza(List<List<Double>> registroNormalizado, KMedoides kmeans) {
+
+		for (List<Double> instancia : registroNormalizado) {
+			double valorPureza;
+			double maxValor = 0;
+			double sumaFila = 0;
+
+			for (Double valor : instancia) {
+				sumaFila += valor;
+				if (valor > maxValor) {
+					maxValor = valor;
+				}
+			}
+
+			valorPureza = (1 / sumaFila) * maxValor;
+
+			kmeans.pureza.add(valorPureza);
+		}
+
+		System.out.println("");
+
+	}
+
 }
