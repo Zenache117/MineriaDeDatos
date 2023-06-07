@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -35,7 +37,24 @@ public class KMedoides {
 		KMedoides kmeans = new KMedoides();
 
 		List<List<Double>> registroNormalizado = new ArrayList<>();
-		registroNormalizado = kmeans.Normalizar(registro);
+
+		// Se elige si se normaliza o no el registro esto originalmente con la intención
+		// de comparar con el dataset utilizado en el documento
+		int opcion = JOptionPane.showOptionDialog(null, "Elije si normalizar o no el dataset", "Normalizacion?",
+				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
+				new Object[] { "Si normalizar", "No normalizar" }, "Opción 1");
+
+		if (opcion == JOptionPane.YES_OPTION) {
+			registroNormalizado = kmeans.Normalizar(registro);
+		} else if (opcion == JOptionPane.NO_OPTION) {
+			for (CSVRecord record : registro) {
+				List<Double> fila = new ArrayList<>();
+				for (String valor : record) {
+					fila.add(Double.parseDouble(valor));
+				}
+				registroNormalizado.add(fila);
+			}
+		}
 
 		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
@@ -52,9 +71,16 @@ public class KMedoides {
 		List<List<Double>> nuevosCentros = new ArrayList<>();
 
 		int cantLimite = 2;
-		MejoraLocal: while (mejoraCentros == true && cantCentros<10	) {
+
+		List<Integer> cantIteraciones = new ArrayList<>();
+
+		int numIteracionesGeneral = 0;
+		MejoraLocal: while (mejoraCentros == true && cantCentros < 10) {
+			numIteracionesGeneral++;
 			int i = 0;
+			int numIteracionesLocal = 0;
 			while (mejoraLocal == true) {
+				numIteracionesLocal++;
 				// En caso que sea la primera vez que se calculan los centros entra aqui para
 				// tener valores con loss cauless comparar desspuess
 				if (i == 0) {
@@ -84,6 +110,9 @@ public class KMedoides {
 				i++;
 			}
 
+			System.out.println("\n Numero de iteraciones local: " + numIteracionesLocal + "\n");
+			cantIteraciones.add(numIteracionesLocal);
+
 			if (mejorValor == -1 || distanciaTotal < mejorValor) {
 				mejorValor = distanciaTotal;
 				mejorCantCentros = cantCentros;
@@ -105,7 +134,18 @@ public class KMedoides {
 		}
 
 		System.out.println("La cantidad de medoides encontrada fue de: " + mejorCantCentros + " con una distancia de: "
-				+ mejorValor);
+				+ mejorValor + "\nNumero de iteraciones general: " + numIteracionesGeneral + "\n");
+
+		int k = 2;
+		int sumaIteraciones = 0;
+		for (Integer valor : cantIteraciones) {
+			sumaIteraciones += valor;
+			System.out.println("k: " + k + " Cantidad de iteraciones: " + valor);
+			k++;
+		}
+		double mediaIteraciones = sumaIteraciones / cantIteraciones.size();
+		System.out.println("Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: "
+				+ mediaIteraciones);
 
 	}
 
@@ -415,7 +455,7 @@ public class KMedoides {
 			}
 			centros.add(registrosNormalizados.get(indiceMaximo));
 		}
-		
+
 		System.out.println("Medoide: " + cantCentros);
 		for (List<Double> fila : centros) {
 			for (Double valor : fila) {
