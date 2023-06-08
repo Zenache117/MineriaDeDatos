@@ -343,7 +343,9 @@ public class KMedoides {
 
 		// Se remueven valores null de las inicializaciones previa
 		kmeans.distClusters.get(0).remove(0);
-
+		for (List<Double> interno : kmeans.distClusters) {
+			interno.remove(0);
+		}
 		for (List<List<Double>> interno : kmeans.clusters) {
 			interno.remove(0);
 		}
