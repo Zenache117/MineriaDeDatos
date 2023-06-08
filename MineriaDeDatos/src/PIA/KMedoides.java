@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.io.File;
+import java.io.FileWriter;
 
 import javax.swing.JOptionPane;
 
@@ -15,6 +17,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
 import com.formdev.flatlaf.ui.FlatMenuItemBorder;
+
+import Portafolio.CarpetaDestino;
 
 public class KMedoides {
 	// Esta será la lista que contendrá todas las distancias minnimas
@@ -33,6 +37,8 @@ public class KMedoides {
 
 	// Una lista para guardar las distancias de clusters
 	List<List<Double>> distClusters = new ArrayList<>();
+
+	String rutaCarpetaDestino;
 
 	public static void main(String[] args) {
 		// Seleccionar CSV
@@ -67,6 +73,10 @@ public class KMedoides {
 				registroNormalizado.add(fila);
 			}
 		}
+
+		// Seleccionar la carpeta destino para guardar el txt
+		CarpetaDestino carpetaDestino = new CarpetaDestino();
+		kmeans.rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
 		kmeans.Pureza(registroNormalizado, kmeans);
 
@@ -277,11 +287,15 @@ public class KMedoides {
 			distancias.add(distCent);
 		}
 
+		// Esta lista representa distancias de cada instancia a los diferenbtes centros
+		List<List<Double>> distanciaACentros = new ArrayList<>();
+
 		// Segun la cantidad de variables del registro recorremos las distancias de cada
 		// instancia a cada centro y se elige la minima entre ellas para agregarse a la
 		// lista de las distancias minimas
 		int numElementos = distancias.get(0).size();
 		for (int i = 0; i < numElementos; i++) {
+
 			// Esta lista apoya a ser la que contenga los elementos en la posición indicada
 			// en el indice i (el centro al que se esta tomando como referencia para la
 			// distancia)
@@ -289,6 +303,7 @@ public class KMedoides {
 			for (List<Double> lista : distancias) {
 				valores.add(lista.get(i));
 			}
+			distanciaACentros.add(valores);
 			/*
 			 * El método Collections.min(valores) toma como argumento una colección de
 			 * valores y devuelve el valor mínimo de esa colección. Para hacer esto, el
@@ -303,32 +318,35 @@ public class KMedoides {
 			double minimo = Collections.min(valores);
 
 			sigmaDisMin.add(minimo);
+		}
 
-			// Para rellenar la lista de clusters se recorren las filas del registro y se
-			// asignan las insatncias correspondientes a cada medoide
-			for (int w = 0; w < registroNormalizado.size(); w++) {
-				// Se obtiene el la posici�n del valor minimo de las disatncias a cada centro en
-				// la instancia actual
-				double minValue = valores.get(0);
-				int minIndex = 0;
-				for (int j = 1; j < valores.size(); j++) {
-					if (valores.get(j) < minValue) {
-						minValue = valores.get(j);
-						minIndex = j;
-					}
+		// Para rellenar la lista de clusters se recorren las filas del registro y se
+		// asignan las insatncias correspondientes a cada medoide
+		for (int w = 0; w < registroNormalizado.size(); w++) {
+
+			// Se obtiene el la posici�n del valor minimo de las disatncias a cada centro en
+			// la instancia actual
+			double minValue = distanciaACentros.get(w).get(0);
+			int minIndex = 0;
+			for (int j = 1; j < distanciaACentros.get(w).size(); j++) {
+				if (distanciaACentros.get(w).get(j) < minValue) {
+					minValue = distanciaACentros.get(w).get(j);
+					minIndex = j;
 				}
-
-				// Se a�ade la instancia y distancia a su medoide correspondiente
-				kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
-				kmeans.distClusters.get(minIndex).add(minimo);
-
 			}
+
+			// Se a�ade la instancia y distancia a su medoide correspondiente
+			kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
+			kmeans.distClusters.get(minIndex).add(minValue);
 
 		}
 
 		// Se remueven valores null de las inicializaciones previa
 		kmeans.distClusters.get(0).remove(0);
-		kmeans.clusters.get(0).remove(0);
+
+		for (List<List<Double>> interno : kmeans.clusters) {
+			interno.remove(0);
+		}
 
 		// Finalizando este punto ya see tiene una lista de clusters correpondiente a la
 		// cantidad de medoides actual
@@ -341,6 +359,29 @@ public class KMedoides {
 
 		System.out.println("Distancia minima acumulada: " + suma + "\n");
 		System.out.println("-----------------------------------------");
+		int contadorCluster = 0;
+		try {
+			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
+			FileWriter writer = new FileWriter(file);
+			writer.write("Clusters\n");
+			writer.write("********************************************\n");
+			contadorCluster = 0;
+			for (List<List<Double>> cluster : kmeans.clusters) {
+				contadorCluster++;
+				writer.write("Cluster: " + contadorCluster + "\n");
+				for (List<Double> fila : cluster) {
+					for (Double valor : fila) {
+						writer.write(" /" + valor + "/ ");
+					}
+					writer.write("\n");
+				}
+				writer.write("\n");
+			}
+			writer.write("********************************************\n");
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return suma;
 	}
