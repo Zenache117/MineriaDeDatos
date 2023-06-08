@@ -14,6 +14,8 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import com.formdev.flatlaf.ui.FlatMenuItemBorder;
+
 public class KMedoides {
 	// Esta ser√° la lista que contendr√° todas las distancias minnimas
 	List<Double> sigmaDisMin = new ArrayList<>();
@@ -25,6 +27,12 @@ public class KMedoides {
 
 	// Una lista para guardar los valores de pureza de cada instancia
 	List<Double> pureza = new ArrayList<>();
+
+	// Una lista para guardar los clusters
+	List<List<List<Double>>> clusters = new ArrayList<>();
+
+	// Una lista para guardar las distancias de clusters
+	List<List<Double>> distClusters = new ArrayList<>();
 
 	public static void main(String[] args) {
 		// Seleccionar CSV
@@ -154,8 +162,8 @@ public class KMedoides {
 			k++;
 		}
 		double mediaIteraciones = sumaIteraciones / cantIteraciones.size();
-		System.out.println(
-				"Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: " + mediaIteraciones);
+		System.out.println("Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: "
+				+ mediaIteraciones);
 	}
 
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
@@ -214,12 +222,31 @@ public class KMedoides {
 
 	}
 
+	// Calulo de disstancias a centros
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
 			KMedoides kmeans) {
 
 		// Se limpian las listas para asegurarse de poder trabajar con ellas
 		kmeans.distancias.clear();
 		kmeans.sigmaDisMin.clear();
+		kmeans.clusters.clear();
+		kmeans.distClusters.clear();
+
+		// Inicializamos la lista de distClusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			kmeans.distClusters.add(valor);
+		}
+
+		// Inicializamos la lista de clusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			List<List<Double>> valores = new ArrayList<>();
+			valores.add(valor);
+			kmeans.clusters.add(valores);
+		}
 
 		// Se recorren los centros
 		for (List<Double> filaCentro : centros) {
@@ -274,8 +301,38 @@ public class KMedoides {
 			 * argumento y te devuelve ese valor.
 			 */
 			double minimo = Collections.min(valores);
+
 			sigmaDisMin.add(minimo);
+
+			// Para rellenar la lista de clusters se recorren las filas del registro y se
+			// asignan las insatncias correspondientes a cada medoide
+			for (int w = 0; w < registroNormalizado.size(); w++) {
+				// Se obtiene el la posiciÛn del valor minimo de las disatncias a cada centro en
+				// la instancia actual
+				double minValue = valores.get(0);
+				int minIndex = 0;
+				for (int j = 1; j < valores.size(); j++) {
+					if (valores.get(j) < minValue) {
+						minValue = valores.get(j);
+						minIndex = j;
+					}
+				}
+
+				// Se aÒade la instancia y distancia a su medoide correspondiente
+				kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
+				kmeans.distClusters.get(minIndex).add(minimo);
+
+			}
+
 		}
+
+		// Se remueven valores null de las inicializaciones previa
+		kmeans.distClusters.get(0).remove(0);
+		kmeans.clusters.get(0).remove(0);
+
+		// Finalizando este punto ya see tiene una lista de clusters correpondiente a la
+		// cantidad de medoides actual
+
 		// Aqui obtenemos la suma de los valores minimos
 		double suma = 0;
 		for (double valor : sigmaDisMin) {
@@ -288,6 +345,7 @@ public class KMedoides {
 		return suma;
 	}
 
+	// Calculo de centroides mediante promedio
 	public List<List<Double>> nuevosCentros(int cantCentros, List<List<Double>> registroNormalizado,
 			List<List<Double>> centros) {
 		// A esta lista se le sumar√°n los valores de las variables de las instancias a
@@ -507,6 +565,7 @@ public class KMedoides {
 		return centros;
 	}
 
+	// Metodo para ajustar el promedio a una instancia existente del registro
 	public List<Double> ajustar(List<Double> centro, List<List<Double>> registroNormalizado) {
 		List<Double> instanciaMasCercana = null;
 		double distanciaMinima = Double.MAX_VALUE;
