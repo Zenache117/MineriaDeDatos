@@ -236,6 +236,9 @@ public class KMedoides {
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
 			KMedoides kmeans) {
 
+		// Lista especial para trabajar con el DBI
+		List<List<Double>> medoides = new ArrayList<>();
+
 		// Se limpian las listas para asegurarse de poder trabajar con ellas
 		kmeans.distancias.clear();
 		kmeans.sigmaDisMin.clear();
@@ -339,6 +342,10 @@ public class KMedoides {
 			kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
 			kmeans.distClusters.get(minIndex).add(minValue);
 
+			if (minValue == 0.0) {
+				medoides.add(registroNormalizado.get(w));
+			}
+
 		}
 
 		// Se remueven valores null de las inicializaciones previa
@@ -353,6 +360,56 @@ public class KMedoides {
 		// Finalizando este punto ya see tiene una lista de clusters correpondiente a la
 		// cantidad de medoides actual
 
+		// Se guardan las sumas de las diatancias de los elementos de los clusters hacia
+		// el medoide para hacer el calculo del DBI
+		List<Double> distIntClust = new ArrayList<>();
+		for (List<Double> interno : distClusters) {
+			double sum = 0;
+			for (Double valor : interno) {
+				sum += valor;
+			}
+			distIntClust.add(sum * (1.0 / interno.size()));
+		}
+
+		double maxDifij = 0;
+
+		// Valor para calculo de DBI que presenta una relación entre las distancias
+		// internas de cada cluster y las distancias entre medoides
+		List<Double> Rij = new ArrayList<>();
+
+		for (int i = 0; i < medoides.size(); i++) {
+			for (int j = i + 1; j < medoides.size(); j++) {
+				double sum = distIntClust.get(i) + distIntClust.get(j);
+
+				List<Double> point1 = medoides.get(i);
+				List<Double> point2 = medoides.get(j);
+				double dist = 0;
+
+				// Distancias euclidianas entre medoides solamente
+				for (int k = 0; k < point1.size(); k++) {
+					dist += Math.pow(point1.get(k) - point2.get(k), 2.0);
+				}
+				dist = Math.pow(dist, (1.0 / medoides.get(0).size()));
+
+				// Se resguardan los valores de Rij para cada combinación de clusters
+				Rij.add(sum / dist);
+
+				// Se obtiene la maxima distancia / diferencia entre los medoides i,j segun la
+				// formula
+				if (dist > maxDifij) {
+					maxDifij = dist;
+				}
+			}
+		}
+
+		double sigmaMAxRij = 0;
+
+		for (Double valor : Rij) {
+			sigmaMAxRij += valor * maxDifij;
+		}
+
+		Double DBI = (1.0 / centros.size()) * sigmaMAxRij;
+
 		// Aqui obtenemos la suma de los valores minimos
 		double suma = 0;
 		for (double valor : sigmaDisMin) {
@@ -365,7 +422,7 @@ public class KMedoides {
 		try {
 			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
 			FileWriter writer = new FileWriter(file);
-			writer.write("Clusters\n");
+			writer.write("DBI: " + DBI + "  Clusters:\n");
 			writer.write("********************************************\n");
 			contadorCluster = 0;
 			for (List<List<Double>> cluster : kmeans.clusters) {
