@@ -1,6 +1,8 @@
 package Portafolio;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +22,14 @@ public class KMedoides {
 	// se contiene representa las distancias de todas las instancias hacia un centro
 	// y la lissta general contiene la de todos los centros
 	List<List<Double>> distancias = new ArrayList<>();
+
+	// Una lista para guardar los clusters
+	List<List<List<Double>>> clusters = new ArrayList<>();
+
+	// Una lista para guardar las distancias de clusters
+	List<List<Double>> distClusters = new ArrayList<>();
+
+	String rutaCarpetaDestino;
 
 	public static void main(String[] args) {
 		// Seleccionar CSV
@@ -55,6 +65,10 @@ public class KMedoides {
 				registroNormalizado.add(fila);
 			}
 		}
+
+		// Seleccionar la carpeta destino para guardar el txt
+		CarpetaDestino carpetaDestino = new CarpetaDestino();
+		kmeans.rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
 		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
@@ -208,9 +222,30 @@ public class KMedoides {
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
 			KMedoides kmeans) {
 
+		// Lista especial para trabajar con el DBI
+		List<List<Double>> medoides = new ArrayList<>();
+
 		// Se limpian las listas para asegurarse de poder trabajar con ellas
 		kmeans.distancias.clear();
 		kmeans.sigmaDisMin.clear();
+		kmeans.clusters.clear();
+		kmeans.distClusters.clear();
+
+		// Inicializamos la lista de distClusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			kmeans.distClusters.add(valor);
+		}
+
+		// Inicializamos la lista de clusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			List<List<Double>> valores = new ArrayList<>();
+			valores.add(valor);
+			kmeans.clusters.add(valores);
+		}
 
 		// Se recorren los centros
 		for (List<Double> filaCentro : centros) {
@@ -241,6 +276,9 @@ public class KMedoides {
 			distancias.add(distCent);
 		}
 
+		// Esta lista representa distancias de cada instancia a los diferenbtes centros
+		List<List<Double>> distanciaACentros = new ArrayList<>();
+
 		// Segun la cantidad de variables del registro recorremos las distancias de cada
 		// instancia a cada centro y se elige la minima entre ellas para agregarse a la
 		// lista de las distancias minimas
@@ -253,6 +291,7 @@ public class KMedoides {
 			for (List<Double> lista : distancias) {
 				valores.add(lista.get(i));
 			}
+			distanciaACentros.add(valores);
 			/*
 			 * El m√©todo Collections.min(valores) toma como argumento una colecci√≥n de
 			 * valores y devuelve el valor m√≠nimo de esa colecci√≥n. Para hacer esto, el
@@ -267,14 +306,126 @@ public class KMedoides {
 			double minimo = Collections.min(valores);
 			sigmaDisMin.add(minimo);
 		}
+
+		// Para rellenar la lista de clusters se recorren las filas del registro y se
+		// asignan las insatncias correspondientes a cada medoide
+		for (int w = 0; w < registroNormalizado.size(); w++) {
+
+			// Se obtiene el la posiciÛn del valor minimo de las disatncias a cada centro en
+			// la instancia actual
+			double minValue = distanciaACentros.get(w).get(0);
+			int minIndex = 0;
+			for (int j = 1; j < distanciaACentros.get(w).size(); j++) {
+				if (distanciaACentros.get(w).get(j) < minValue) {
+					minValue = distanciaACentros.get(w).get(j);
+					minIndex = j;
+				}
+			}
+
+			// Se aÒade la instancia y distancia a su medoide correspondiente
+			kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
+			kmeans.distClusters.get(minIndex).add(minValue);
+
+			if (minValue == 0.0) {
+				medoides.add(registroNormalizado.get(w));
+			}
+
+		}
+		// Se remueven valores null de las inicializaciones previa
+		kmeans.distClusters.get(0).remove(0);
+		for (List<Double> interno : kmeans.distClusters) {
+			interno.remove(0);
+		}
+		for (List<List<Double>> interno : kmeans.clusters) {
+			interno.remove(0);
+		}
+
+		// Finalizando este punto ya see tiene una lista de clusters correpondiente a la
+		// cantidad de medoides actual
+
+		// Se guardan las sumas de las diatancias de los elementos de los clusters hacia
+		// el medoide para hacer el calculo del DBI
+		List<Double> distIntClust = new ArrayList<>();
+		for (List<Double> interno : distClusters) {
+			double sum = 0;
+			for (Double valor : interno) {
+				sum += valor;
+			}
+			distIntClust.add(sum * (1.0 / interno.size()));
+		}
+
+		double maxDifij = 0;
+
+		// Valor para calculo de DBI que presenta una relaciÛn entre las distancias
+		// internas de cada cluster y las distancias entre medoides
+		List<Double> Rij = new ArrayList<>();
+
+		for (int i = 0; i < medoides.size(); i++) {
+			for (int j = i + 1; j < medoides.size(); j++) {
+				double sum = distIntClust.get(i) + distIntClust.get(j);
+
+				List<Double> point1 = medoides.get(i);
+				List<Double> point2 = medoides.get(j);
+				double dist = 0;
+
+				// Distancias euclidianas entre medoides solamente
+				for (int k = 0; k < point1.size(); k++) {
+					dist += Math.pow(point1.get(k) - point2.get(k), 2.0);
+				}
+				dist = Math.pow(dist, (1.0 / medoides.get(0).size()));
+
+				// Se resguardan los valores de Rij para cada combinaciÛn de clusters
+				Rij.add(sum / dist);
+
+				// Se obtiene la maxima distancia / diferencia entre los medoides i,j segun la
+				// formula
+				if (dist > maxDifij) {
+					maxDifij = dist;
+				}
+			}
+		}
+
+		double sigmaMAxRij = 0;
+
+		for (Double valor : Rij) {
+			sigmaMAxRij += valor * maxDifij;
+		}
+
+		Double DBI = (1.0 / centros.size()) * sigmaMAxRij;
+
 		// Aqui obtenemos la suma de los valores minimos
 		double suma = 0;
 		for (double valor : sigmaDisMin) {
 			suma += valor;
 		}
 
+		System.out.println("DBI: " + DBI);
 		System.out.println("Distancia minima acumulada: " + suma + "\n");
 		System.out.println("-----------------------------------------");
+
+		int contadorCluster = 0;
+		try {
+			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
+			FileWriter writer = new FileWriter(file);
+			writer.write("DBI: " + DBI + "  Clusters:\n");
+			writer.write("********************************************\n");
+			contadorCluster = 0;
+			for (List<List<Double>> cluster : kmeans.clusters) {
+				contadorCluster++;
+				writer.write("Cluster: " + contadorCluster + "\n");
+				for (List<Double> fila : cluster) {
+					for (Double valor : fila) {
+						writer.write(" /" + valor + "/ ");
+					}
+					writer.write("\n");
+				}
+				writer.write("\n");
+			}
+			writer.write("********************************************\n");
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return suma;
 	}
