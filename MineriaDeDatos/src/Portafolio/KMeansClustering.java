@@ -3,7 +3,10 @@ package Portafolio;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +20,14 @@ public class KMeansClustering {
 	// se contiene representa las distancias de todas las instancias hacia un centro
 	// y la lissta general contiene la de todos los centros
 	List<List<Double>> distancias = new ArrayList<>();
+
+	// Una lista para guardar los clusters
+	List<List<List<Double>>> clusters = new ArrayList<>();
+
+	// Una lista para guardar las distancias de clusters
+	List<List<Double>> distClusters = new ArrayList<>();
+
+	String rutaCarpetaDestino;
 
 	public static void main(String[] args) {
 		// Seleccionar CSV
@@ -35,6 +46,10 @@ public class KMeansClustering {
 
 		List<List<Double>> registroNormalizado = new ArrayList<>();
 		registroNormalizado = kmeans.Normalizar(registro);
+
+		// Seleccionar la carpeta destino para guardar el txt
+		CarpetaDestino carpetaDestino = new CarpetaDestino();
+		kmeans.rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
 		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
@@ -159,6 +174,23 @@ public class KMeansClustering {
 		// Se limpian las listas para asegurarse de poder trabajar con ellas
 		kmeans.distancias.clear();
 		kmeans.sigmaDisMin.clear();
+		kmeans.clusters.clear();
+		kmeans.distClusters.clear();
+		// Inicializamos la lista de distClusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			kmeans.distClusters.add(valor);
+		}
+
+		// Inicializamos la lista de clusters
+		for (int i = 0; i < centros.size(); i++) {
+			List<Double> valor = new ArrayList<>();
+			valor.add(null);
+			List<List<Double>> valores = new ArrayList<>();
+			valores.add(valor);
+			kmeans.clusters.add(valores);
+		}
 
 		// Se recorren los centros
 		for (List<Double> filaCentro : centros) {
@@ -188,6 +220,8 @@ public class KMeansClustering {
 			// generales
 			distancias.add(distCent);
 		}
+		// Esta lista representa distancias de cada instancia a los diferenbtes centros
+		List<List<Double>> distanciaACentros = new ArrayList<>();
 
 		// Segun la cantidad de variables del registro recorremos las distancias de cada
 		// instancia a cada centro y se elige la minima entre ellas para agregarse a la
@@ -201,6 +235,7 @@ public class KMeansClustering {
 			for (List<Double> lista : distancias) {
 				valores.add(lista.get(i));
 			}
+			distanciaACentros.add(valores);
 			/*
 			 * El método Collections.min(valores) toma como argumento una colección de
 			 * valores y devuelve el valor mínimo de esa colección. Para hacer esto, el
@@ -215,6 +250,40 @@ public class KMeansClustering {
 			double minimo = Collections.min(valores);
 			sigmaDisMin.add(minimo);
 		}
+
+		// Para rellenar la lista de clusters se recorren las filas del registro y se
+		// asignan las insatncias correspondientes a cada medoide
+		for (int w = 0; w < registroNormalizado.size(); w++) {
+
+			// Se obtiene el la posici�n del valor minimo de las disatncias a cada centro en
+			// la instancia actual
+			double minValue = distanciaACentros.get(w).get(0);
+			int minIndex = 0;
+			for (int j = 1; j < distanciaACentros.get(w).size(); j++) {
+				if (distanciaACentros.get(w).get(j) < minValue) {
+					minValue = distanciaACentros.get(w).get(j);
+					minIndex = j;
+				}
+			}
+
+			// Se a�ade la instancia y distancia a su medoide correspondiente
+			kmeans.clusters.get(minIndex).add(registroNormalizado.get(w));
+			kmeans.distClusters.get(minIndex).add(minValue);
+
+		}
+
+		// Finalizando este punto ya see tiene una lista de clusters correpondiente a la
+		// cantidad de medoides actual
+
+		// Se remueven valores null de las inicializaciones previa
+		kmeans.distClusters.get(0).remove(0);
+		for (List<Double> interno : kmeans.distClusters) {
+			interno.remove(0);
+		}
+		for (List<List<Double>> interno : kmeans.clusters) {
+			interno.remove(0);
+		}
+
 		// Aqui obtenemos la suma de los valores minimos
 		double suma = 0;
 		for (double valor : sigmaDisMin) {
@@ -223,6 +292,30 @@ public class KMeansClustering {
 
 		System.out.println("Distancia minima acumulada: " + suma + "\n");
 		System.out.println("-----------------------------------------");
+
+		int contadorCluster = 0;
+		try {
+			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
+			FileWriter writer = new FileWriter(file);
+			writer.write("  Clusters:\n");
+			writer.write("********************************************\n");
+			contadorCluster = 0;
+			for (List<List<Double>> cluster : kmeans.clusters) {
+				contadorCluster++;
+				writer.write("Cluster: " + contadorCluster + "\n");
+				for (List<Double> fila : cluster) {
+					for (Double valor : fila) {
+						writer.write(" /" + valor + "/ ");
+					}
+					writer.write("\n");
+				}
+				writer.write("\n");
+			}
+			writer.write("********************************************\n");
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
 		return suma;
 	}
