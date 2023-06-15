@@ -36,6 +36,8 @@ public class KMedoidesRandom {
 
 	String rutaCarpetaDestino;
 
+	List<String> encabezados = new ArrayList<>();
+	
 	// Guarda las instancias incluidas con su primer columna (los paises)
 	List<List<String>> registroInstancias = new ArrayList<>();
 
@@ -55,6 +57,12 @@ public class KMedoidesRandom {
 			registro = parser.getRecords();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+		
+		for(int i=0; i<registro.get(0).size();i++) {
+			if(i!=0) {
+				kmeans.encabezados.add(registro.get(0).get(i));
+			}
 		}
 
 		for (int i = 0; i < registro.size(); i++) {
@@ -455,6 +463,12 @@ public class KMedoidesRandom {
 			FileWriter writer = new FileWriter(file);
 			writer.write("DBI: " + DBI + "  Clusters:\n");
 			writer.write("********************************************\n");
+			
+			for (String valor : kmeans.encabezados) {
+				writer.write(valor + "/// ");
+			}
+			writer.write("\n");
+			
 			contadorCluster = 0;
 			for (List<List<Double>> cluster : kmeans.clusters) {
 				contadorCluster++;

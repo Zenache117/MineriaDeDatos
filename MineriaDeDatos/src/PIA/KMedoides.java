@@ -61,6 +61,12 @@ public class KMedoides {
 			e.printStackTrace();
 		}
 
+		for (int i = 0; i < registro.get(0).size(); i++) {
+			if (i != 0) {
+				kmeans.encabezados.add(registro.get(0).get(i));
+			}
+		}
+
 		for (int i = 0; i < registro.size(); i++) {
 			if (i != 0) {
 				List<String> valores = new ArrayList<>();
@@ -468,6 +474,12 @@ public class KMedoides {
 			FileWriter writer = new FileWriter(file);
 			writer.write("DBI: " + DBI + "  Clusters:\n");
 			writer.write("********************************************\n");
+
+			for (String valor : kmeans.encabezados) {
+				writer.write(valor + "/// ");
+			}
+			writer.write("\n");
+
 			contadorCluster = 0;
 			for (List<List<Double>> cluster : kmeans.clusters) {
 				contadorCluster++;
