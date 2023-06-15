@@ -1,14 +1,12 @@
-package PIA;
+package Portafolio;
 
+import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.io.File;
-import java.io.FileWriter;
 
 import javax.swing.JOptionPane;
 
@@ -16,11 +14,12 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import com.formdev.flatlaf.ui.FlatMenuItemBorder;
+import java.util.Random;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.HashSet;
 
-import Portafolio.CarpetaDestino;
-
-public class KMedoides {
+public class KMedoidesRandom {
 	// Esta serÃ¡ la lista que contendrÃ¡ todas las distancias minnimas
 	List<Double> sigmaDisMin = new ArrayList<>();
 
@@ -29,16 +28,11 @@ public class KMedoides {
 	// y la lissta general contiene la de todos los centros
 	List<List<Double>> distancias = new ArrayList<>();
 
-	// Una lista para guardar los valores de pureza de cada instancia
-	List<Double> pureza = new ArrayList<>();
-
 	// Una lista para guardar los clusters
 	List<List<List<Double>>> clusters = new ArrayList<>();
 
 	// Una lista para guardar las distancias de clusters
 	List<List<Double>> distClusters = new ArrayList<>();
-
-	List<String> encabezados = new ArrayList<>();
 
 	String rutaCarpetaDestino;
 
@@ -49,7 +43,9 @@ public class KMedoides {
 	List<CSVRecord> registroValores = new ArrayList<>();
 
 	public static void main(String[] args) {
-		KMedoides kmeans = new KMedoides();
+		// Generamos esta instancia para desplazarnos a travez de los metodos de la
+		// clase
+		KMedoidesRandom kmeans = new KMedoidesRandom();
 
 		// Seleccionar CSV
 		SeleccionarArchivo select = new SeleccionarArchivo();
@@ -80,9 +76,6 @@ public class KMedoides {
 				kmeans.registroValores.add(csvr);
 			}
 		}
-
-		// Generamos esta instancia para desplazarnos a travez de los metodos de la
-		// clase
 
 		List<List<Double>> registroNormalizado = new ArrayList<>();
 
@@ -122,8 +115,6 @@ public class KMedoides {
 		CarpetaDestino carpetaDestino = new CarpetaDestino();
 		kmeans.rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
-		kmeans.Pureza(registroNormalizado, kmeans);
-
 		// Iniciamos la cantidad de centros en 2
 		int cantCentros = 2;
 		boolean mejoraCentros = true;
@@ -140,16 +131,12 @@ public class KMedoides {
 
 		int cantLimite = 2;
 
-		// Listas para mostar al final la canntidad de iteraciones que se tuvo en cada
-		// nivel de k
 		List<Integer> cantIteraciones = new ArrayList<>();
 
 		int numIteracionesGeneral = 0;
-
 		MejoraLocal: while (mejoraCentros == true && cantCentros < 10) {
 			numIteracionesGeneral++;
 			int i = 0;
-
 			int numIteracionesLocal = 0;
 			while (mejoraLocal == true) {
 				numIteracionesLocal++;
@@ -218,6 +205,7 @@ public class KMedoides {
 		double mediaIteraciones = sumaIteraciones / cantIteraciones.size();
 		System.out.println("Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: "
 				+ mediaIteraciones);
+
 	}
 
 	public List<List<Double>> Normalizar(List<CSVRecord> registro) {
@@ -276,9 +264,8 @@ public class KMedoides {
 
 	}
 
-	// Calulo de disstancias a centros
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
-			KMedoides kmeans) {
+			KMedoidesRandom kmeans) {
 
 		// Lista especial para trabajar con el DBI
 		List<List<Double>> medoides = new ArrayList<>();
@@ -342,7 +329,6 @@ public class KMedoides {
 		// lista de las distancias minimas
 		int numElementos = distancias.get(0).size();
 		for (int i = 0; i < numElementos; i++) {
-
 			// Esta lista apoya a ser la que contenga los elementos en la posiciÃ³n indicada
 			// en el indice i (el centro al que se esta tomando como referencia para la
 			// distancia)
@@ -363,7 +349,6 @@ public class KMedoides {
 			 * argumento y te devuelve ese valor.
 			 */
 			double minimo = Collections.min(valores);
-
 			sigmaDisMin.add(minimo);
 		}
 
@@ -422,7 +407,7 @@ public class KMedoides {
 		List<Double> Rij = new ArrayList<>();
 
 		for (int i = 0; i < medoides.size(); i++) {
-			for (int j = i + 1; j < medoides.size(); j++) {
+			for (int j = i + 1; j < medoides.size() && j < distIntClust.size(); j++) {
 				double sum = distIntClust.get(i) + distIntClust.get(j);
 
 				List<Double> point1 = medoides.get(i);
@@ -460,8 +445,10 @@ public class KMedoides {
 			suma += valor;
 		}
 
+		System.out.println("DBI: " + DBI);
 		System.out.println("Distancia minima acumulada: " + suma + "\n");
 		System.out.println("-----------------------------------------");
+
 		int contadorCluster = 0;
 		try {
 			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
@@ -507,7 +494,6 @@ public class KMedoides {
 		return suma;
 	}
 
-	// Calculo de centroides mediante promedio
 	public List<List<Double>> nuevosCentros(int cantCentros, List<List<Double>> registroNormalizado,
 			List<List<Double>> centros) {
 		// A esta lista se le sumarÃ¡n los valores de las variables de las instancias a
@@ -587,7 +573,7 @@ public class KMedoides {
 			}
 		}
 
-		KMedoides obtener = new KMedoides();
+		KMedoidesRandom obtener = new KMedoidesRandom();
 		List<List<Double>> medoides = new ArrayList<>();
 
 		// Se obtiene el medoide real
@@ -609,110 +595,17 @@ public class KMedoides {
 
 	}
 
-	// Centros iniciales definidos por el documento, si el valor de k es par se
-	// toman los valores menores de pureza y si es impar se toman los de mayor
-	// pureza para la primer iterracion de cada k
 	public List<List<Double>> centrosIniciales(int cantCentros, List<List<Double>> registrosNormalizados) {
-
-		if (registrosNormalizados.size() < 100) {
-			System.out.println("Cantidad de intancias no valida.");
-			System.exit(0);
-		}
-		if (registrosNormalizados.get(0).size() < 2) {
-			System.out.println("Cantidad de variables no valida.");
-			System.exit(0);
-		}
-
 		// Crear una lista vacía para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
 
-		/*
-		 * Crea una lista de índices y la ordena en función de los valores en la lista
-		 * pureza. Luego, utiliza la lista de índices ordenada para crear nuevas listas
-		 * que contengan los elementos de las listas originales en el orden deseado.
-		 */
-
-		// Crea una lista de índices
-		List<Integer> indices = IntStream.range(0, pureza.size()).boxed().collect(Collectors.toList());
-
-		// Ordena la lista de índices en función de los valores en la lista pureza
-		indices.sort((i1, i2) -> pureza.get(i2).compareTo(pureza.get(i1)));
-
-		// Crea nuevas listas ordenadas
-		List<Double> purezaOrdenada = new ArrayList<>();
-		List<List<Double>> registroNormalizadoOrdenado = new ArrayList<>();
-		for (int i : indices) {
-			purezaOrdenada.add(pureza.get(i));
-			registroNormalizadoOrdenado.add(registrosNormalizados.get(i));
-		}
-
-		// Imprime las listas ordenadas
-		System.out.println("Instancias ordenadas por pureza de forma descendente:");
-		System.out.println(purezaOrdenada);
-		System.out.println(registroNormalizadoOrdenado + "\n");
-
-		float residuo = cantCentros % 2;
-
-		// Si el residuo de la division de k entre 2 es 0 es un valor par en caso
-		// contrario impar
-		if (residuo == 0) {
-			switch (cantCentros) {
-			case 2:
-				int n1 = cantCentros; // Número de elementos que deseas obtener
-				int inicio1 = Math.max(0, registroNormalizadoOrdenado.size() - n1);
-				centros = registroNormalizadoOrdenado.subList(inicio1, registroNormalizadoOrdenado.size());
-				break;
-			case 4:
-				int n2 = cantCentros; // Número de elementos que deseas obtener
-				int inicio2 = Math.max(0, registroNormalizadoOrdenado.size() - n2);
-				centros = registroNormalizadoOrdenado.subList(inicio2, registroNormalizadoOrdenado.size());
-				break;
-			case 6:
-				int n3 = cantCentros; // Número de elementos que deseas obtener
-				int inicio3 = Math.max(0, registroNormalizadoOrdenado.size() - n3);
-				centros = registroNormalizadoOrdenado.subList(inicio3, registroNormalizadoOrdenado.size());
-				break;
-			case 8:
-				int n4 = cantCentros; // Número de elementos que deseas obtener
-				int inicio4 = Math.max(0, registroNormalizadoOrdenado.size() - n4);
-				centros = registroNormalizadoOrdenado.subList(inicio4, registroNormalizadoOrdenado.size());
-				break;
-			case 10:
-				int n5 = cantCentros; // Número de elementos que deseas obtener
-				int inicio5 = Math.max(0, registroNormalizadoOrdenado.size() - n5);
-				centros = registroNormalizadoOrdenado.subList(inicio5, registroNormalizadoOrdenado.size());
-				break;
-			default:
-				System.out.println("Cantidad de Medoides no valida.");
-				System.exit(0);
-				break;
-			}
-		} else {
-			switch (cantCentros) {
-			case 3:
-				int n1 = cantCentros; // Número de elementos que deseas obtener
-				int fin1 = Math.min(n1, registroNormalizadoOrdenado.size());
-				centros = registroNormalizadoOrdenado.subList(0, fin1);
-				break;
-			case 5:
-				int n2 = cantCentros; // Número de elementos que deseas obtener
-				int fin2 = Math.min(n2, registroNormalizadoOrdenado.size());
-				centros = registroNormalizadoOrdenado.subList(0, fin2);
-				break;
-			case 7:
-				int n3 = cantCentros; // Número de elementos que deseas obtener
-				int fin3 = Math.min(n3, registroNormalizadoOrdenado.size());
-				centros = registroNormalizadoOrdenado.subList(0, fin3);
-				break;
-			case 9:
-				int n4 = cantCentros; // Número de elementos que deseas obtener
-				int fin4 = Math.min(n4, registroNormalizadoOrdenado.size());
-				centros = registroNormalizadoOrdenado.subList(0, fin4);
-				break;
-			default:
-				System.out.println("Cantidad de Medoides no valida.");
-				System.exit(0);
-				break;
+		Random rand = new Random();
+		Set<Integer> indicesSeleccionados = new HashSet<>();
+		while (centros.size() < cantCentros) {
+			int indiceAleatorio = rand.nextInt(registrosNormalizados.size());
+			if (!indicesSeleccionados.contains(indiceAleatorio)) {
+				centros.add(registrosNormalizados.get(indiceAleatorio));
+				indicesSeleccionados.add(indiceAleatorio);
 			}
 		}
 
@@ -727,7 +620,6 @@ public class KMedoides {
 		return centros;
 	}
 
-	// Metodo para ajustar el promedio a una instancia existente del registro
 	public List<Double> ajustar(List<Double> centro, List<List<Double>> registroNormalizado) {
 		List<Double> instanciaMasCercana = null;
 		double distanciaMinima = Double.MAX_VALUE;
@@ -747,31 +639,6 @@ public class KMedoides {
 			}
 		}
 		return instanciaMasCercana;
-	}
-
-	// Generar la lista de valores de pureza para cada instancia del datasset
-	// utilizado
-	public void Pureza(List<List<Double>> registroNormalizado, KMedoides kmeans) {
-
-		for (List<Double> instancia : registroNormalizado) {
-			double valorPureza;
-			double maxValor = 0;
-			double sumaFila = 0;
-
-			for (Double valor : instancia) {
-				sumaFila += valor;
-				if (valor > maxValor) {
-					maxValor = valor;
-				}
-			}
-
-			valorPureza = (1 / sumaFila) * maxValor;
-
-			kmeans.pureza.add(valorPureza);
-		}
-
-		System.out.println("");
-
 	}
 
 }
