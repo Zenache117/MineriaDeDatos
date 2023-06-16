@@ -37,7 +37,7 @@ public class KMedoidesRandom {
 	String rutaCarpetaDestino;
 
 	List<String> encabezados = new ArrayList<>();
-	
+
 	// Guarda las instancias incluidas con su primer columna (los paises)
 	List<List<String>> registroInstancias = new ArrayList<>();
 
@@ -58,9 +58,9 @@ public class KMedoidesRandom {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		for(int i=0; i<registro.get(0).size();i++) {
-			if(i!=0) {
+
+		for (int i = 0; i < registro.get(0).size(); i++) {
+			if (i != 0) {
 				kmeans.encabezados.add(registro.get(0).get(i));
 			}
 		}
@@ -463,12 +463,12 @@ public class KMedoidesRandom {
 			FileWriter writer = new FileWriter(file);
 			writer.write("DBI: " + DBI + "  Clusters:\n");
 			writer.write("********************************************\n");
-			
+
 			for (String valor : kmeans.encabezados) {
 				writer.write(valor + "/// ");
 			}
 			writer.write("\n");
-			
+
 			contadorCluster = 0;
 			for (List<List<Double>> cluster : kmeans.clusters) {
 				contadorCluster++;
@@ -613,14 +613,52 @@ public class KMedoidesRandom {
 		// Crear una lista vacía para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
 
-		Random rand = new Random();
+		
+		//Generador GLC con Tiempo
+		
+		
+		// es el módulo y determina el rango de valores que puede generar el algoritmo.
+		// El valor de m debe ser un número primo grande para obtener buenos resultados.
+		// El período máximo del generador (es decir, el número máximo de valores que
+		// puede generar antes de repetirse) es m.
+		long m = (long) Math.pow(2, 32);
+
+		// es el multiplicador y determina cómo cambia la semilla en cada iteración del
+		// algoritmo. El valor de a debe ser un número entero entre 0 y m. La elección
+		// de a afecta las propiedades estadísticas de la secuencia de números
+		// generados.
+		long a = 1664525;
+
+		// es el incremento y se utiliza para evitar que el algoritmo genere ceros. El
+		// valor de c debe ser un número entero entre 0 y m. Si c es igual a 0, el
+		// algoritmo se convierte en un generador multiplicativo congruente (GMC).
+		long c = 1013904223;
+
+		// es la semilla inicial y determina el punto de partida de la secuencia de
+		// números pseudoaleatorios generados. El valor de seed debe ser un número
+		// entero entre 0 y m. Si se utiliza la misma semilla en diferentes ejecuciones
+		// del algoritmo, se generará la misma secuencia de números pseudoaleatorios, por esso se utiliza el tiempo para hacerlo variar realmente.
+		long seed = System.currentTimeMillis(); // valor inicial de la semilla
+		int min = 0;
+		int max = registrosNormalizados.size() - 1;
 		Set<Integer> indicesSeleccionados = new HashSet<>();
-		while (centros.size() < cantCentros) {
-			int indiceAleatorio = rand.nextInt(registrosNormalizados.size());
-			if (!indicesSeleccionados.contains(indiceAleatorio)) {
-				centros.add(registrosNormalizados.get(indiceAleatorio));
-				indicesSeleccionados.add(indiceAleatorio);
+
+		for (int i = 0; i < cantCentros; i++) {
+			long randomIndex = (a * seed + c) % m;
+			randomIndex = randomIndex % (max - min + 1) + min;
+
+			while (indicesSeleccionados.contains((int) randomIndex)) {
+				randomIndex = (a * seed + c) % m;
+				randomIndex = randomIndex % (max - min + 1) + min;
+				seed = randomIndex;
 			}
+
+			indicesSeleccionados.add((int) randomIndex);
+			seed = randomIndex;
+		}
+
+		for (int index : indicesSeleccionados) {
+			centros.add(registrosNormalizados.get(index));
 		}
 
 		System.out.println("Medoide: " + cantCentros);
