@@ -14,6 +14,9 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
+import PIA.KMedoides;
+import PIA.SeleccionarArchivo;
+
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -44,48 +47,18 @@ public class KMedoidesRandom {
 	// Guarda solamente los valores numericos de las instancias
 	List<CSVRecord> registroValores = new ArrayList<>();
 
+	// Para imprimir la lista de iteraciones en cada valor de K
+	List<List<Integer>> numIteracionesList = new ArrayList<>();
+
 	public static void main(String[] args) {
 		// Generamos esta instancia para desplazarnos a travez de los metodos de la
 		// clase
-		KMedoidesRandom kmeans = new KMedoidesRandom();
+
+		KMedoidesRandom repeticiones = new KMedoidesRandom();
 
 		// Seleccionar CSV
 		SeleccionarArchivo select = new SeleccionarArchivo();
 		String rutaArchivo = select.selectFile();
-		List<CSVRecord> registro = new ArrayList<>();
-		try (CSVParser parser = new CSVParser(new FileReader(rutaArchivo), CSVFormat.DEFAULT)) {
-			registro = parser.getRecords();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		for (int i = 0; i < registro.get(0).size(); i++) {
-			if (i != 0) {
-				kmeans.encabezados.add(registro.get(0).get(i));
-			}
-		}
-
-		for (int i = 0; i < registro.size(); i++) {
-			if (i != 0) {
-				List<String> valores = new ArrayList<>();
-				for (int j = 0; j < registro.get(i).size(); j++) {
-					if (j != 0) {
-						valores.add(registro.get(i).get(j));
-					}
-				}
-				CSVRecord csvr = null;
-				try {
-					csvr = CSVParser.parse(valores.stream().collect(Collectors.joining(",")), CSVFormat.DEFAULT)
-							.getRecords().get(0);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				kmeans.registroValores.add(csvr);
-			}
-		}
-
-		List<List<Double>> registroNormalizado = new ArrayList<>();
 
 		// Se elige si se normaliza o no el registro esto originalmente con la intención
 		// de comparar con el dataset utilizado en el documento
@@ -93,126 +66,219 @@ public class KMedoidesRandom {
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null,
 				new Object[] { "Si normalizar", "No normalizar" }, "Opción 1");
 
-		if (opcion == JOptionPane.YES_OPTION) {
-			registroNormalizado = kmeans.Normalizar(kmeans.registroValores);
-		} else if (opcion == JOptionPane.NO_OPTION) {
-			for (CSVRecord record : kmeans.registroValores) {
-				List<Double> fila = new ArrayList<>();
-				for (String valor : record) {
-					fila.add(Double.parseDouble(valor));
-				}
-				registroNormalizado.add(fila);
-			}
-		}
-
-		for (List<Double> fila : registroNormalizado) {
-			List<String> valInstancia = new ArrayList<>();
-			for (Double valor : fila) {
-				valInstancia.add(valor.toString());
-			}
-			kmeans.registroInstancias.add(valInstancia);
-		}
-
-		for (int i = 0; i < registro.size(); i++) {
-			if (i != 0) {
-				kmeans.registroInstancias.get(i - 1).add(0, registro.get(i).get(0));
-			}
-		}
-
 		// Seleccionar la carpeta destino para guardar el txt
 		CarpetaDestino carpetaDestino = new CarpetaDestino();
-		kmeans.rutaCarpetaDestino = carpetaDestino.selectCarpet();
+		repeticiones.rutaCarpetaDestino = carpetaDestino.selectCarpet();
 
-		// Iniciamos la cantidad de centros en 2
-		int cantCentros = 2;
-		boolean mejoraCentros = true;
-		boolean mejoraLocal = true;
-		double distanciaTotal = 0.0;
-		double nuevaDistancia = 0.0;
-		double mejorValor = -1;
-		int mejorCantCentros = 2;
+		int Rep = 0;
+		for (int iteraciones = 0; iteraciones < 10; iteraciones++) {
+			Rep++;
+			KMedoidesRandom kmeans = new KMedoidesRandom();
 
-		// Esta lista contendrÃ¡ los valores de los centros como tal en funciÃ³n de las
-		// variables del registro
-		List<List<Double>> centros = new ArrayList<>();
-		List<List<Double>> nuevosCentros = new ArrayList<>();
+			List<CSVRecord> registro = new ArrayList<>();
+			try (CSVParser parser = new CSVParser(new FileReader(rutaArchivo), CSVFormat.DEFAULT)) {
+				registro = parser.getRecords();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-		int cantLimite = 2;
+			for (int i = 0; i < registro.get(0).size(); i++) {
+				if (i != 0) {
+					kmeans.encabezados.add(registro.get(0).get(i));
+				}
+			}
 
-		List<Integer> cantIteraciones = new ArrayList<>();
-
-		int numIteracionesGeneral = 0;
-		MejoraLocal: while (mejoraCentros == true && cantCentros < 10) {
-			numIteracionesGeneral++;
-			int i = 0;
-			int numIteracionesLocal = 0;
-			while (mejoraLocal == true) {
-				numIteracionesLocal++;
-				// En caso que sea la primera vez que se calculan los centros entra aqui para
-				// tener valores con loss cauless comparar desspuess
-				if (i == 0) {
-					centros = kmeans.centrosIniciales(cantCentros, registroNormalizado);
-					distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado, kmeans);
-
-				} else {
-
-					// Se calculan loss nuevos centros y su distancia
-					nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
-					nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado, kmeans);
-
-					// Si hay una mejora se actualizan los valores en caso contrario se cambia la
-					// variable de mejora para salir del ciclo y registrar la mejor distancia con la
-					// cantidad de centros actual.
-					if (nuevaDistancia < distanciaTotal) {
-						distanciaTotal = nuevaDistancia;
-						centros = nuevosCentros;
-					} else {
-						mejoraLocal = false;
+			for (int i = 0; i < registro.size(); i++) {
+				if (i != 0) {
+					List<String> valores = new ArrayList<>();
+					for (int j = 0; j < registro.get(i).size(); j++) {
+						if (j != 0) {
+							valores.add(registro.get(i).get(j));
+						}
 					}
+					CSVRecord csvr = null;
+					try {
+						csvr = CSVParser.parse(valores.stream().collect(Collectors.joining(",")), CSVFormat.DEFAULT)
+								.getRecords().get(0);
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					kmeans.registroValores.add(csvr);
+				}
+			}
+
+			List<List<Double>> registroNormalizado = new ArrayList<>();
+
+			if (opcion == JOptionPane.YES_OPTION) {
+				registroNormalizado = kmeans.Normalizar(kmeans.registroValores);
+			} else if (opcion == JOptionPane.NO_OPTION) {
+				for (CSVRecord record : kmeans.registroValores) {
+					List<Double> fila = new ArrayList<>();
+					for (String valor : record) {
+						fila.add(Double.parseDouble(valor));
+					}
+					registroNormalizado.add(fila);
+				}
+			}
+
+			for (List<Double> fila : registroNormalizado) {
+				List<String> valInstancia = new ArrayList<>();
+				for (Double valor : fila) {
+					valInstancia.add(valor.toString());
+				}
+				kmeans.registroInstancias.add(valInstancia);
+			}
+
+			for (int i = 0; i < registro.size(); i++) {
+				if (i != 0) {
+					kmeans.registroInstancias.get(i - 1).add(0, registro.get(i).get(0));
+				}
+			}
+
+			// Iniciamos la cantidad de centros en 2
+			int cantCentros = 2;
+			boolean mejoraCentros = true;
+			boolean mejoraLocal = true;
+			double distanciaTotal = 0.0;
+			double nuevaDistancia = 0.0;
+			double mejorValor = -1;
+			int mejorCantCentros = 2;
+
+			// Esta lista contendrÃ¡ los valores de los centros como tal en funciÃ³n de las
+			// variables del registro
+			List<List<Double>> centros = new ArrayList<>();
+			List<List<Double>> nuevosCentros = new ArrayList<>();
+
+			int cantLimite = 2;
+
+			List<Integer> cantIteraciones = new ArrayList<>();
+
+			int numIteracionesGeneral = 0;
+			MejoraLocal: while (mejoraCentros == true && cantCentros < 10) {
+				numIteracionesGeneral++;
+				int i = 0;
+				int numIteracionesLocal = 0;
+				while (mejoraLocal == true) {
+					numIteracionesLocal++;
+					// En caso que sea la primera vez que se calculan los centros entra aqui para
+					// tener valores con loss cauless comparar desspuess
+					if (i == 0) {
+						centros = kmeans.centrosIniciales(cantCentros, registroNormalizado);
+						distanciaTotal = kmeans.distanciaCentros(centros, registroNormalizado, kmeans, repeticiones,
+								Rep);
+
+					} else {
+
+						// Se calculan loss nuevos centros y su distancia
+						nuevosCentros = kmeans.nuevosCentros(cantCentros, registroNormalizado, centros);
+						nuevaDistancia = kmeans.distanciaCentros(nuevosCentros, registroNormalizado, kmeans,
+								repeticiones, Rep);
+
+						// Si hay una mejora se actualizan los valores en caso contrario se cambia la
+						// variable de mejora para salir del ciclo y registrar la mejor distancia con la
+						// cantidad de centros actual.
+						if (nuevaDistancia < distanciaTotal) {
+							distanciaTotal = nuevaDistancia;
+							centros = nuevosCentros;
+						} else {
+							mejoraLocal = false;
+						}
+					}
+
+					// Esto ayuda a decirle al ciclo que no es la primera iteraciÃ³n con ese calor
+					// de
+					// centros
+					i++;
 				}
 
-				// Esto ayuda a decirle al ciclo que no es la primera iteraciÃ³n con ese calor
-				// de
-				// centros
-				i++;
+				System.out.println("\n Numero de iteraciones local: " + numIteracionesLocal + "\n");
+				cantIteraciones.add(numIteracionesLocal);
+
+				if (mejorValor == -1 || distanciaTotal < mejorValor) {
+					mejorValor = distanciaTotal;
+					mejorCantCentros = cantCentros;
+					mejoraLocal = true;
+				} else {
+
+					mejoraCentros = false;
+				}
+
+				cantCentros++;
+				cantLimite++;
+
+				// En caso que nunca empeore la distancia minima acumulada, se detiene antes de
+				// que cada instancia sea un medoide
+				if (cantLimite == registroNormalizado.size()) {
+					break MejoraLocal;
+				}
+
 			}
 
-			System.out.println("\n Numero de iteraciones local: " + numIteracionesLocal + "\n");
-			cantIteraciones.add(numIteracionesLocal);
+			repeticiones.numIteracionesList.add(cantIteraciones);
 
-			if (mejorValor == -1 || distanciaTotal < mejorValor) {
-				mejorValor = distanciaTotal;
-				mejorCantCentros = cantCentros;
-				mejoraLocal = true;
-			} else {
+			System.out.println(
+					"La cantidad de medoides encontrada fue de: " + mejorCantCentros + " con una distancia de: "
+							+ mejorValor + "\nNumero de iteraciones general: " + numIteracionesGeneral + "\n");
 
-				mejoraCentros = false;
+			int k = 2;
+			int sumaIteraciones = 0;
+			for (Integer valor : cantIteraciones) {
+				sumaIteraciones += valor;
+				System.out.println("k: " + k + " Cantidad de iteraciones: " + valor);
+				k++;
 			}
-
-			cantCentros++;
-			cantLimite++;
-
-			// En caso que nunca empeore la distancia minima acumulada, se detiene antes de
-			// que cada instancia sea un medoide
-			if (cantLimite == registroNormalizado.size()) {
-				break MejoraLocal;
-			}
-
+			double mediaIteraciones = sumaIteraciones / cantIteraciones.size();
+			System.out.println("Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: "
+					+ mediaIteraciones);
 		}
+		try {
+			File file = new File(repeticiones.rutaCarpetaDestino + "/PromedioIteracionesRandom.txt");
 
-		System.out.println("La cantidad de medoides encontrada fue de: " + mejorCantCentros + " con una distancia de: "
-				+ mejorValor + "\nNumero de iteraciones general: " + numIteracionesGeneral + "\n");
+			FileWriter writer = new FileWriter(file);
+			writer.write("Rep 1 / 2 / 3 / 4 / 5 / 6 / 7 / 8 / 9 / 10 /");
+			writer.write("\n");
+			int maxLength = 0;
+			for (int i = 0; i < 10; i++) {
+				if (repeticiones.numIteracionesList.get(i).size() > maxLength) {
+					maxLength = repeticiones.numIteracionesList.get(i).size();
+				}
+			}
 
-		int k = 2;
-		int sumaIteraciones = 0;
-		for (Integer valor : cantIteraciones) {
-			sumaIteraciones += valor;
-			System.out.println("k: " + k + " Cantidad de iteraciones: " + valor);
-			k++;
+			for (int j = 0; j < maxLength; j++) {
+				writer.write("    ");
+				for (int i = 0; i < 10; i++) {
+					if (j < repeticiones.numIteracionesList.get(i).size()) {
+						writer.write(repeticiones.numIteracionesList.get(i).get(j) + " / ");
+					} else {
+						writer.write("  / ");
+					}
+				}
+				writer.write("\n");
+			}
+
+			writer.write("\n");
+			List<Double> promedios = new ArrayList<>();
+			for (List<Integer> lista : repeticiones.numIteracionesList) {
+				int contador = 0;
+				int suma = 0;
+				for (Integer valor : lista) {
+					contador++;
+					suma += valor;
+				}
+				double prom = suma / contador;
+				promedios.add(prom);
+			}
+			writer.write("Prom: ");
+			for (Double valor : promedios) {
+				writer.write("" + String.format("%.4f", valor) + " / ");
+			}
+
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		double mediaIteraciones = sumaIteraciones / cantIteraciones.size();
-		System.out.println("Cantidad total de iteraciones: " + sumaIteraciones + "\nPromedio de iteraciones por k: "
-				+ mediaIteraciones);
 
 	}
 
@@ -273,7 +339,7 @@ public class KMedoidesRandom {
 	}
 
 	public double distanciaCentros(List<List<Double>> centros, List<List<Double>> registroNormalizado,
-			KMedoidesRandom kmeans) {
+			KMedoidesRandom kmeans, KMedoidesRandom repeticiones, int Rep) {
 
 		// Lista especial para trabajar con el DBI
 		List<List<Double>> medoides = new ArrayList<>();
@@ -453,15 +519,15 @@ public class KMedoidesRandom {
 			suma += valor;
 		}
 
-		System.out.println("DBI: " + DBI);
-		System.out.println("Distancia minima acumulada: " + suma + "\n");
+		System.out.println("DBI: " + String.format("%.4f", DBI));
+		System.out.println("Distancia minima acumulada: " + String.format("%.4f", suma) + "\n");
 		System.out.println("-----------------------------------------");
 
 		int contadorCluster = 0;
 		try {
-			File file = new File(kmeans.rutaCarpetaDestino + "/clusters_k" + centros.size() + ".txt");
+			File file = new File(repeticiones.rutaCarpetaDestino + "/clusters_k" + centros.size() + "_" + Rep + ".txt");
 			FileWriter writer = new FileWriter(file);
-			writer.write("DBI: " + DBI + "  Clusters:\n");
+			writer.write("DBI: " + String.format("%.4f", DBI) + "  Clusters:\n");
 			writer.write("********************************************\n");
 
 			for (String valor : kmeans.encabezados) {
@@ -493,7 +559,7 @@ public class KMedoidesRandom {
 					}
 					writer.write(pais + " ");
 					for (Double valor : fila) {
-						writer.write(" /" + valor + "/ ");
+						writer.write(" /" + String.format("%.4f", valor) + "/ ");
 					}
 					writer.write("\n");
 				}
@@ -600,7 +666,7 @@ public class KMedoidesRandom {
 		System.out.println("Medoide: " + cantCentros);
 		for (List<Double> fila : medoides) {
 			for (Double valor : fila) {
-				System.out.print(" /" + valor + "/ ");
+				System.out.print(" /" + String.format("%.4f", valor) + "/ ");
 			}
 			System.out.println("\n");
 		}
@@ -613,10 +679,8 @@ public class KMedoidesRandom {
 		// Crear una lista vacía para almacenar los centros resultantes
 		List<List<Double>> centros = new ArrayList<>();
 
-		
-		//Generador GLC con Tiempo
-		
-		
+		// Generador GLC con Tiempo
+
 		// es el módulo y determina el rango de valores que puede generar el algoritmo.
 		// El valor de m debe ser un número primo grande para obtener buenos resultados.
 		// El período máximo del generador (es decir, el número máximo de valores que
@@ -637,7 +701,8 @@ public class KMedoidesRandom {
 		// es la semilla inicial y determina el punto de partida de la secuencia de
 		// números pseudoaleatorios generados. El valor de seed debe ser un número
 		// entero entre 0 y m. Si se utiliza la misma semilla en diferentes ejecuciones
-		// del algoritmo, se generará la misma secuencia de números pseudoaleatorios, por esso se utiliza el tiempo para hacerlo variar realmente.
+		// del algoritmo, se generará la misma secuencia de números pseudoaleatorios,
+		// por esso se utiliza el tiempo para hacerlo variar realmente.
 		long seed = System.currentTimeMillis(); // valor inicial de la semilla
 		int min = 0;
 		int max = registrosNormalizados.size() - 1;
@@ -664,7 +729,7 @@ public class KMedoidesRandom {
 		System.out.println("Medoide: " + cantCentros);
 		for (List<Double> fila : centros) {
 			for (Double valor : fila) {
-				System.out.print(" /" + valor + "/ ");
+				System.out.print(" /" + String.format("%.4f", valor) + "/ ");
 			}
 			System.out.println("\n");
 		}
