@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"PIA","l":"CarpetaDestino"},{"p":"PIA","l":"KMedoidesRandom"},{"p":"PIA","l":"SeleccionarArchivo"}];updateSearchResults();
